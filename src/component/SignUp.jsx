@@ -169,7 +169,7 @@ export default function SignUp() {
   return (
     <>
       <CssBaseline enableColorScheme />
-      <SignUpContainer direction="column" justifyContent="space-between">
+      <SignUpContainer direction="column" justifyContent="space-between" height="100vh">
         <Card variant="outlined">
           <Typography
             component="h1"

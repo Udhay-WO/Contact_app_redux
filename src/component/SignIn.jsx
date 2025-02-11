@@ -73,18 +73,9 @@ export default function SignIn() {
   const handlepassword = (e) => {
     setPassword(e.target.value);
   };
-  const handleSubmit = (event) => {
-    if (emailError || passwordError) {
-      event.preventDefault();
-      return;
-    }
-  };
-
   const validateInputs = (e) => {
     e.preventDefault();
-
     let isValid = true;
-
     if (!email || !/\S+@\S+\.\S+/.test(email)) {
       setEmailError(true);
       setEmailErrorMessage("Please enter a valid email address.");
@@ -108,10 +99,10 @@ export default function SignIn() {
       const validemail = data.find((item) => {
         return item.email == email && item;
       });
-      console.log(validemail)
       if (validemail) {
         if (validemail.password == password) {
-          navigate("/contactform");
+          sessionStorage.setItem("email",email);
+          navigate("/pop");
         } else {
           setPasswordError(true);
           setPasswordErrorMessage("Incorrect Password .");
@@ -137,7 +128,7 @@ export default function SignIn() {
           </Typography>
           <Box
             component="form"
-            onSubmit={handleSubmit}
+            
             noValidate
             sx={{
               display: "flex",
@@ -214,6 +205,7 @@ export default function SignIn() {
             </Typography>
           </Box>
         </Card>
+        
       </SignInContainer>
     </>
   );

@@ -15,32 +15,32 @@ const ContactForm = () => {
     setPhoneNumber(e.target.value);
   };
   const handleImage = (e) => {
-    setImage(e.target.value);
+    const imageBlob = new Blob([e.target.files[0]], { type: 'image/png' });
+    setImage(URL.createObjectURL(imageBlob));
   };
-  function getBase64Image(img) {
-    var canvas = document.createElement("canvas");
-    canvas.width = img.width;
-    canvas.height = img.height;
-
-    var ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0);
-
-    var dataURL = canvas.toDataURL("image/png");
-
-    return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
-    }
+  const setFormdata = (data) => {
+    localStorage.setItem("users", JSON.stringify(data));
+  };
+ 
   const handleSubmit = (e) =>{
     e.preventDefault();
    const data = JSON.parse(localStorage.getItem('users'));
-  const contact =  data.map((item)=>{
-    return item.contact
-   })
-   const imgData = getBase64Image(image);
-   contact.push({name ,email ,phoneNumber ,imgData});
-   localStorage.setItem()
+   const sessiondata = sessionStorage.getItem("email");
+   data.forEach(element => {
+    if(element.email == sessiondata){
+      element.contact.push({name ,email ,phoneNumber ,image})
+    }
+      
+   });
+   setFormdata(data)
+  setName('')
+  setEmail('')
+  setPhoneNumber('')
+  setImage('')
   }
   return (
     <div>
+      <h1 style={{textAlign:"center"}}>Add Contact</h1>
       <form
         action=""
         method="post"
@@ -73,15 +73,16 @@ const ContactForm = () => {
           />
         </div>
         <br />
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", justifyContent: "space-around" }}>
           <label htmlFor="image">Upload image</label>
           <input
             type="file"
             name="image"
-            value={image}
             onChange={handleImage}
+          
           />
         </div>
+       
         <br />
         <div style={{ display: "flex", justifyContent: "center" }}>
           <button type="submit" style={{ width: "180px" }}>
