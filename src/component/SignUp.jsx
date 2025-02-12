@@ -75,36 +75,15 @@ export default function SignUp() {
   };
   const handlename = (e) => {
     setName(e.target.value);
-    // if (name.trim() == "") {
-    //   setNameError(true);
-    //   setNameErrorMessage("Name is required.");
-    // } else {
-    //   setNameError(false);
-    //   setNameErrorMessage("");
-    // }
   };
   const handleemail = (e) => {
     setEmail(e.target.value);
-    // if (!email || !/\S+@\S+\.\S+/.test(email)) {
-    //   setEmailError(true);
-    //   setEmailErrorMessage("Please enter a valid email address.");
-    // } else {
-    //   setEmailError(false);
-    //   setEmailErrorMessage("");
-    // }
   };
   const handlepassword = (e) => {
     setPassword(e.target.value);
   };
   const handleconfirmpassword = (e) => {
     setConfirmPassword(e.target.value);
-    if (confirmpassword.trim() == "") {
-      setConfirmError(true);
-      setConfirmErrorMessage(" Confirm Password is required");
-    } else {
-      setConfirmError(false);
-      setConfirmErrorMessage("");
-    }
   };
 
   const validateInputs = (e) => {
@@ -124,8 +103,16 @@ export default function SignUp() {
       setPasswordErrorMessage("Password must be at least 6 characters long.");
       isValid = false;
     } else {
-      setPasswordError(false);
+      setPasswordError(true);
       setPasswordErrorMessage("");
+    }
+    if (!confirmpassword || confirmpassword.length < 1) {
+      setConfirmError(true);
+      setConfirmErrorMessage("Password must be at least 6 characters long.");
+      isValid = false;
+    } else {
+      setConfirmError(false);
+      setConfirmErrorMessage("");
     }
     if (!name || name.length < 1) {
       setNameError(true);
@@ -135,6 +122,7 @@ export default function SignUp() {
       setNameError(false);
       setNameErrorMessage("");
     }
+    
     if (password !== confirmpassword) {
       setPasswordError(true);
       setPasswordErrorMessage("Password and confirm password not match");
@@ -211,7 +199,7 @@ export default function SignUp() {
                 onChange={handleemail}
                 error={emailError}
                 helperText={emailErrorMessage}
-                color={passwordError ? "error" : "primary"}
+                color={emailError ? "error" : "primary"}
               />
             </FormControl>
             <FormControl>
@@ -223,7 +211,6 @@ export default function SignUp() {
                 placeholder="••••••"
                 type="password"
                 id="password"
-                autoComplete="new-password"
                 variant="outlined"
                 value={password}
                 onChange={handlepassword}
@@ -241,7 +228,6 @@ export default function SignUp() {
                 placeholder="••••••"
                 type="password"
                 id="confirmpassword"
-                autoComplete="new-password"
                 variant="outlined"
                 value={confirmpassword}
                 onChange={handleconfirmpassword}

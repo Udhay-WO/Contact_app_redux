@@ -8,20 +8,9 @@ const ContactForm = () => {
   const [image, setImage] = useState("");
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
-  // const [val, setVal] = useState(null);
+
   let updateid = sessionStorage.getItem("update") || null;
-  // const data = JSON.parse(localStorage.getItem("users"));
-  // const sessiondata = sessionStorage.getItem("email");
-  // data.map((element) => {
-  //   if (element.email == sessiondata) {
-  //     return element.contact.map((item, index) => {
-  //       if (index == updateid) {
-  //         setVal(item);
-  //         return;
-  //       }
-  //     });
-  //   }
-  // });
+
   const handlename = (e) => {
     setName(e.target.value);
   };
@@ -108,12 +97,7 @@ const ContactForm = () => {
         <div style={{ display: "flex", justifyContent: "space-around" }}>
           {" "}
           <label htmlFor="name">Name</label>
-          <input
-            type="text"
-            name="name"
-            value={name}
-            onChange={handlename}
-          />
+          <input type="text" name="name" value={name} onChange={handlename} />
         </div>
         <br />
         <div style={{ display: "flex", justifyContent: "space-around" }}>
