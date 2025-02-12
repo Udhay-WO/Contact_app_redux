@@ -1,13 +1,10 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Checkbox from "@mui/material/Checkbox";
 import CssBaseline from "@mui/material/CssBaseline";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import Divider from "@mui/material/Divider";
 import FormLabel from "@mui/material/FormLabel";
 import FormControl from "@mui/material/FormControl";
-import Link from "@mui/material/Link";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
@@ -102,7 +99,8 @@ export default function SignIn() {
       if (validemail) {
         if (validemail.password == password) {
           sessionStorage.setItem("email",email);
-          navigate("/pop");
+          sessionStorage.setItem("authToken",true);
+          navigate("/contactform")
         } else {
           setPasswordError(true);
           setPasswordErrorMessage("Incorrect Password .");
@@ -175,11 +173,6 @@ export default function SignIn() {
                 color={passwordError ? "error" : "primary"}
               />
             </FormControl>
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
-
             <Button
               type="submit"
               fullWidth
@@ -188,14 +181,6 @@ export default function SignIn() {
             >
               Sign in
             </Button>
-            <Link
-              component="button"
-              type="button"
-              variant="body2"
-              sx={{ alignSelf: "center" }}
-            >
-              Forgot your password?
-            </Link>
           </Box>
           <Divider>or</Divider>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>

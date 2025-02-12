@@ -2,7 +2,6 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
-import Divider from "@mui/material/Divider";
 import FormLabel from "@mui/material/FormLabel";
 import FormControl from "@mui/material/FormControl";
 import TextField from "@mui/material/TextField";
@@ -61,11 +60,13 @@ export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmpassword, setConfirmPassword] = useState("");
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
+  const [confirmError, setConfirmError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
+  const [confirmErrorMessage, setConfirmErrorMessage] = React.useState("");
   const [nameError, setNameError] = React.useState(false);
   const [nameErrorMessage, setNameErrorMessage] = React.useState("");
 
@@ -74,45 +75,41 @@ export default function SignUp() {
   };
   const handlename = (e) => {
     setName(e.target.value);
-    const nameRegex = /^[a-zA-Z]{2,20}$/;
-    if (name.trim() === "") {
-      setNameError(true);
-      setNameErrorMessage("Name is required.");
-    } else {
-      setNameError(false);
-      setNameErrorMessage("");
-    }
-    if (!nameRegex.test(name)) {
-      setNameError(true);
-      setNameErrorMessage("Name must be between 3 to 20.");
-    } else {
-      setNameError(false);
-      setNameErrorMessage("");
-    }
-
-    if (!nameRegex.test(name)) {
-      setNameError(true);
-      setNameErrorMessage("Name must be between 3 to 20.");
-    } else {
-      setNameError(false);
-      setNameErrorMessage("");
-    }
+    // if (name.trim() == "") {
+    //   setNameError(true);
+    //   setNameErrorMessage("Name is required.");
+    // } else {
+    //   setNameError(false);
+    //   setNameErrorMessage("");
+    // }
   };
   const handleemail = (e) => {
     setEmail(e.target.value);
+    // if (!email || !/\S+@\S+\.\S+/.test(email)) {
+    //   setEmailError(true);
+    //   setEmailErrorMessage("Please enter a valid email address.");
+    // } else {
+    //   setEmailError(false);
+    //   setEmailErrorMessage("");
+    // }
   };
   const handlepassword = (e) => {
     setPassword(e.target.value);
   };
   const handleconfirmpassword = (e) => {
     setConfirmPassword(e.target.value);
+    if (confirmpassword.trim() == "") {
+      setConfirmError(true);
+      setConfirmErrorMessage(" Confirm Password is required");
+    } else {
+      setConfirmError(false);
+      setConfirmErrorMessage("");
+    }
   };
- 
+
   const validateInputs = (e) => {
     e.preventDefault();
-
     let isValid = true;
-
     if (!email || !/\S+@\S+\.\S+/.test(email)) {
       setEmailError(true);
       setEmailErrorMessage("Please enter a valid email address.");
@@ -122,7 +119,7 @@ export default function SignUp() {
       setEmailErrorMessage("");
     }
 
-    if (!password || password.length < 6) {
+    if (!password || password.length < 1) {
       setPasswordError(true);
       setPasswordErrorMessage("Password must be at least 6 characters long.");
       isValid = false;
@@ -130,7 +127,6 @@ export default function SignUp() {
       setPasswordError(false);
       setPasswordErrorMessage("");
     }
-
     if (!name || name.length < 1) {
       setNameError(true);
       setNameErrorMessage("Name is required.");
@@ -154,7 +150,6 @@ export default function SignUp() {
         password,
         contact: [],
       };
-      console.log(data);
       const formdata = JSON.parse(localStorage.getItem("users") || "[]");
       formdata.push(data);
       setFormdata(formdata);
@@ -162,25 +157,29 @@ export default function SignUp() {
       setEmail("");
       setPassword("");
       setConfirmPassword("");
-      navigate("/")
+      navigate("/");
     }
   };
 
   return (
     <>
       <CssBaseline enableColorScheme />
-      <SignUpContainer direction="column" justifyContent="space-between" height="100vh">
+      <SignUpContainer
+        direction="column"
+        justifyContent="space-between"
+        height="100vh"
+      >
         <Card variant="outlined">
           <Typography
             component="h1"
             variant="h4"
-            sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
+            sx={{ width: "100%", fontSize: "1.5rem" }}
           >
             Sign up
           </Typography>
           <Box
             component="form"
-            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+            sx={{ display: "flex", flexDirection: "column", gap: 1 }}
           >
             <FormControl>
               <FormLabel htmlFor="name">Full name</FormLabel>
@@ -246,9 +245,9 @@ export default function SignUp() {
                 variant="outlined"
                 value={confirmpassword}
                 onChange={handleconfirmpassword}
-                error={passwordError}
-                helperText={passwordErrorMessage}
-                color={passwordError ? "error" : "primary"}
+                error={confirmError}
+                helperText={confirmErrorMessage}
+                color={confirmError ? "error" : "primary"}
               />
             </FormControl>
             <Button
@@ -260,9 +259,9 @@ export default function SignUp() {
               Sign up
             </Button>
           </Box>
-          <Divider>
+          {/* <Divider>
             <Typography sx={{ color: "text.secondary" }}>or</Typography>
-          </Divider>
+          </Divider> */}
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Typography sx={{ textAlign: "center" }}>
               Already have an account? <NavLink to="/">Sign in</NavLink>
