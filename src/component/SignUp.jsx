@@ -12,7 +12,7 @@ import { styled } from "@mui/material/styles";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { setLocalStorageData } from "./LocalStorageOperation";
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -59,46 +59,46 @@ export default function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmpassword, setConfirmPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
-  const [passwordError, setPasswordError] = React.useState(false);
-  const [confirmError, setConfirmError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
+  const [passwordError, setPasswordError] = useState(false);
+  const [confirmError, setConfirmError] = useState(false);
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
   const [confirmErrorMessage, setConfirmErrorMessage] = React.useState("");
   const [nameError, setNameError] = React.useState(false);
   const [nameErrorMessage, setNameErrorMessage] = React.useState("");
 
-  const setFormdata = (data) => {
-    localStorage.setItem("users", JSON.stringify(data));
-  };
-  const handlename = (e) => {
+  const handleName = (e) => {
     setName(e.target.value);
   };
-  const handleemail = (e) => {
+  const handleEmail = (e) => {
     setEmail(e.target.value);
   };
-  const handlepassword = (e) => {
+  const handlePassword = (e) => {
     setPassword(e.target.value);
   };
-  const handleconfirmpassword = (e) => {
+  const handleConfirmPassword = (e) => {
     setConfirmPassword(e.target.value);
   };
 
   const validateInputs = (e) => {
     e.preventDefault();
     let isValid = true;
-    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+    if (!email) {
+      setEmailError(true);
+      setEmailErrorMessage("Please enter  email address.");
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
       setEmailError(true);
       setEmailErrorMessage("Please enter a valid email address.");
-      isValid = false;
     } else {
       setEmailError(false);
       setEmailErrorMessage("");
     }
 
-    if (!password || password.length < 1) {
+    if (!password || password.length < 6) {
       setPasswordError(true);
       setPasswordErrorMessage("Password must be at least 6 characters long.");
       isValid = false;
@@ -106,9 +106,12 @@ export default function SignUp() {
       setPasswordError(true);
       setPasswordErrorMessage("");
     }
-    if (!confirmpassword || confirmpassword.length < 1) {
+
+    if (!confirmPassword || confirmPassword.length < 6) {
       setConfirmError(true);
-      setConfirmErrorMessage("Password must be at least 6 characters long.");
+      setConfirmErrorMessage(
+        "confirm Password must be at least 6 characters long."
+      );
       isValid = false;
     } else {
       setConfirmError(false);
@@ -122,8 +125,8 @@ export default function SignUp() {
       setNameError(false);
       setNameErrorMessage("");
     }
-    
-    if (password !== confirmpassword) {
+
+    if (password !== confirmPassword) {
       setPasswordError(true);
       setPasswordErrorMessage("Password and confirm password not match");
       isValid = false;
@@ -140,7 +143,7 @@ export default function SignUp() {
       };
       const formdata = JSON.parse(localStorage.getItem("users") || "[]");
       formdata.push(data);
-      setFormdata(formdata);
+      setLocalStorageData(formdata);
       setName("");
       setEmail("");
       setPassword("");
@@ -180,7 +183,7 @@ export default function SignUp() {
                 placeholder="Enter name"
                 error={nameError}
                 value={name}
-                onChange={handlename}
+                onChange={handleName}
                 helperText={nameErrorMessage}
                 color={nameError ? "error" : "primary"}
               />
@@ -196,7 +199,7 @@ export default function SignUp() {
                 autoComplete="email"
                 variant="outlined"
                 value={email}
-                onChange={handleemail}
+                onChange={handleEmail}
                 error={emailError}
                 helperText={emailErrorMessage}
                 color={emailError ? "error" : "primary"}
@@ -213,7 +216,7 @@ export default function SignUp() {
                 id="password"
                 variant="outlined"
                 value={password}
-                onChange={handlepassword}
+                onChange={handlePassword}
                 error={passwordError}
                 helperText={passwordErrorMessage}
                 color={passwordError ? "error" : "primary"}
@@ -229,8 +232,8 @@ export default function SignUp() {
                 type="password"
                 id="confirmpassword"
                 variant="outlined"
-                value={confirmpassword}
-                onChange={handleconfirmpassword}
+                value={confirmPassword}
+                onChange={handleConfirmPassword}
                 error={confirmError}
                 helperText={confirmErrorMessage}
                 color={confirmError ? "error" : "primary"}
@@ -245,9 +248,6 @@ export default function SignUp() {
               Sign up
             </Button>
           </Box>
-          {/* <Divider>
-            <Typography sx={{ color: "text.secondary" }}>or</Typography>
-          </Divider> */}
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Typography sx={{ textAlign: "center" }}>
               Already have an account? <NavLink to="/">Sign in</NavLink>

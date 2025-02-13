@@ -13,6 +13,7 @@ import { styled } from "@mui/material/styles";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getLocalStorageData, setSessionStorageAuthToken, setSessionStorageEmail } from "./LocalStorageOperation";
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -92,14 +93,14 @@ export default function SignIn() {
     }
 
     if (isValid) {
-      const data = JSON.parse(localStorage.getItem("users"));
+      const data = getLocalStorageData();
       const validemail = data.find((item) => {
         return item.email == email && item;
       });
       if (validemail) {
         if (validemail.password == password) {
-          sessionStorage.setItem("email",email);
-          sessionStorage.setItem("authToken",true);
+          setSessionStorageEmail(email);
+          setSessionStorageAuthToken();
           navigate("/contactform")
         } else {
           setPasswordError(true);

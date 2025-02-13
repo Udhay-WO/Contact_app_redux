@@ -1,23 +1,34 @@
-import { useState } from "react";
+/* eslint-disable react/prop-types */
+import { useState, useRef } from "react";
 import SnackDemo from "./SnackDemo";
-
-const ContactForm = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [image, setImage] = useState("");
+import {
+  getLocalStorageData,
+  getSessionStorageData,
+  removeSessionStorage,
+  setLocalStorageData,
+} from "./LocalStorageOperation";
+const ContactForm = ({ uuid, getData }) => {
+  const contact = JSON.parse(getSessionStorageData("contact"));
+  const [name, setName] = useState(contact ? contact.name : "");
+  const [email, setEmail] = useState(contact ? contact.email : "");
+  const [phoneNumber, setPhoneNumber] = useState(
+    contact ? contact.phoneNumber : ""
+  );
+  const [image, setImage] = useState(contact ? contact.image : "");
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [editId, seteditId] = useState(uuid);
+  const inputRef = useRef();
+  let updateId = getSessionStorageData("updateid") || null;
 
-  let updateid = sessionStorage.getItem("update") || null;
-
-  const handlename = (e) => {
+  const handleName = (e) => {
     setName(e.target.value);
   };
-  const handlemail = (e) => {
+  const handleEmail = (e) => {
     setEmail(e.target.value);
   };
-  const handlephonenumber = (e) => {
+  const handlePhoneNumber = (e) => {
     setPhoneNumber(e.target.value);
   };
   const handleImage = (e) => {
@@ -31,20 +42,18 @@ const ContactForm = () => {
     };
     reader.readAsDataURL(file);
   };
-  const setFormdata = (data) => {
-    localStorage.setItem("users", JSON.stringify(data));
-  };
   const insertContact = (data, sessiondata) => {
     data.forEach((element) => {
       if (element.email == sessiondata) {
         element.contact.push({ name, email, phoneNumber, image });
       }
     });
-    setFormdata(data);
+    setLocalStorageData(data);
     setName("");
     setEmail("");
     setPhoneNumber("");
     setImage(null);
+    inputRef.current.value = null;
     setOpen(true);
     setMessage("Contact added success");
   };
@@ -52,7 +61,7 @@ const ContactForm = () => {
     data.map((element) => {
       if (element.email == sessiondata) {
         return element.contact.map((item, index) => {
-          if (index == updateid) {
+          if (index == updateId) {
             return Object.assign(item, {
               name: name,
               email: email,
@@ -63,30 +72,46 @@ const ContactForm = () => {
         });
       }
     });
-    setFormdata(data);
+    setLocalStorageData(data);
     setName("");
     setEmail("");
     setPhoneNumber("");
     setImage(null);
-    sessionStorage.removeItem("update");
+    removeSessionStorage("updateid");
+    removeSessionStorage("contact");
+    inputRef.current.value = null;
     setOpen(true);
     setMessage("Contact updated success");
+    seteditId("");
+    getData();
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    const data = JSON.parse(localStorage.getItem("users"));
-    const sessiondata = sessionStorage.getItem("email");
-    if (updateid) {
-      updateContact(data, sessiondata);
+    const data = getLocalStorageData();
+    const sessiondata = getSessionStorageData("email");
+    let isValid = true;
+    if (name.trim() == "") {
+      isValid = false;
+    }
+    if (phoneNumber.trim() == "") {
+      isValid = false;
+    }
+    if (isValid) {
+      if (updateId) {
+        updateContact(data, sessiondata);
+      } else {
+        insertContact(data, sessiondata);
+      }
+      setErrorMessage("");
     } else {
-      insertContact(data, sessiondata);
+      setErrorMessage("Please fill name & phone number fields");
     }
   };
   return (
     <div>
       <h2 style={{ textAlign: "center" }}>
         {" "}
-        {updateid ? "Edit Contact" : "Add Contact"}{" "}
+        {editId ? "Edit Contact" : "Add Contact"}
       </h2>
       <form
         action=""
@@ -97,7 +122,13 @@ const ContactForm = () => {
         <div style={{ display: "flex", justifyContent: "space-around" }}>
           {" "}
           <label htmlFor="name">Name</label>
-          <input type="text" name="name" value={name} onChange={handlename} />
+          <input
+            type="text"
+            name="name"
+            value={name}
+            onChange={handleName}
+            required
+          />
         </div>
         <br />
         <div style={{ display: "flex", justifyContent: "space-around" }}>
@@ -106,7 +137,8 @@ const ContactForm = () => {
             type="email"
             name="email"
             value={email}
-            onChange={handlemail}
+            onChange={handleEmail}
+            required
           />
         </div>
         <br />
@@ -115,23 +147,33 @@ const ContactForm = () => {
           <input
             type="tel"
             name="phone"
+            placeholder="Enter 10 digit number"
             value={phoneNumber}
-            onChange={handlephonenumber}
+            onChange={handlePhoneNumber}
+            required
+            pattern="[0-9]{10}"
           />
         </div>
         <br />
         <div style={{ display: "flex", justifyContent: "space-around" }}>
           <label htmlFor="image">Upload image</label>
-          <input type="file" name="image" onChange={handleImage} />
+          <input
+            type="file"
+            name="image"
+            onChange={handleImage}
+            ref={inputRef}
+          />
         </div>
 
+        <br />
+        <div style={{ textAlign: "center", color: "red" }}>{errorMessage}</div>
         <br />
         <div style={{ display: "flex", justifyContent: "center" }}>
           <button
             type="submit"
             style={{ width: "180px", backgroundColor: "lightblue" }}
           >
-            {updateid ? "Edit Contact" : "Add Contact"}
+            {editId ? "Edit Contact" : "Add Contact"}
           </button>
         </div>
       </form>
