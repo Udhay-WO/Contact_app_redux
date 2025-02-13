@@ -5,22 +5,25 @@ import SnackDemo from "./SnackDemo";
 import ContactForm from "./ContactForm";
 import { ContactList } from "./ContactList";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { removeSessionStorage } from "./LocalStorageOperation";
+import { useState,useRef } from "react";
+import { removeSessionStorage, setLocalStorageData } from "./LocalStorageOperation";
 export default function Popup() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [uuid, setuuid] = useState();
+  const [message,setMessage] = useState(""); 
+  const inputRef = useRef();
   const handleLogout = () => {
     removeSessionStorage("email");
     removeSessionStorage("authToken");
     navigate("/");
   };
+  let data = JSON.parse(localStorage.getItem("users"));
   const handleExport = () => {
     const data = JSON.parse(localStorage.getItem("users"));
     const email = sessionStorage.getItem("email");
     const contact = data.map((item) => {
-      return item.email == email ? item.contact : "";
+     if(item.email == email){return item.contact} 
     });
     const blob = new Blob([JSON.stringify(contact)], {
       type: "application/json",
@@ -30,14 +33,21 @@ export default function Popup() {
     a.href = url;
     a.download = "contacts.json";
     a.click();
+    setMessage("Contact exported")
     setOpen(true);
   };
   const handleImport = (e) => {
     const file = e.target.files[0];
     const reader = new FileReader();
     reader.onloadend = () => {
-      const data = JSON.parse(reader.result);
-      console.log(data);
+      const fileData = JSON.parse(reader.result);
+      data.forEach((item)=>{
+        item.contact.push(fileData);
+      })
+      setLocalStorageData(data);
+      inputRef.current.value = null;
+      setMessage("Contact imported")
+      setOpen(true);
     };
     reader.readAsText(file);
   };
@@ -49,7 +59,7 @@ export default function Popup() {
   };
   return (
     <div >
-      <SnackDemo open={open} set={setOpen} message={"Contact exported"} />
+      <SnackDemo open={open} set={setOpen} message={message} />
       <h4 style={{ textAlign: "center" }}>Contact Page</h4>
 
       <Pop
@@ -86,7 +96,7 @@ export default function Popup() {
         }}
       >
         <button onClick={handleExport}>Export</button>
-        <input type="file" onChange={handleImport} />
+        <input type="file" onChange={handleImport} ref={inputRef}/>
       </div>
       <ContactList sendData={handleCall} />
     </div>

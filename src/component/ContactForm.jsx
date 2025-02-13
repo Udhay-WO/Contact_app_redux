@@ -138,6 +138,7 @@ const ContactForm = ({ uuid, getData }) => {
             name="email"
             value={email}
             onChange={handleEmail}
+            pattern="/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
             required
           />
         </div>

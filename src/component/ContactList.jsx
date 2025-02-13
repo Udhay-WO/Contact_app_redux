@@ -44,7 +44,7 @@ export const ContactList = ({ sendData }) => {
               return (
                 <>
                 <li
-                  key={index}
+                  key={index+1}
                   style={{
                     width: "400px",
                     backgroundColor: "",
@@ -52,6 +52,7 @@ export const ContactList = ({ sendData }) => {
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
+                    justifyContent:"space-around"
                   }}
                 >{i.image ?
                   <img
@@ -81,7 +82,7 @@ export const ContactList = ({ sendData }) => {
                     </button>
                   </div>
                 </li>
-                <br />
+                
                 </>
               );
             });

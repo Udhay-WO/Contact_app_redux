@@ -86,6 +86,14 @@ export default function SignUp() {
   const validateInputs = (e) => {
     e.preventDefault();
     let isValid = true;
+    if (!name || name.length < 1) {
+      setNameError(true);
+      setNameErrorMessage("Name is required.");
+      isValid = false;
+    } else {
+      setNameError(false);
+      setNameErrorMessage("");
+    }
     if (!email) {
       setEmailError(true);
       setEmailErrorMessage("Please enter  email address.");
@@ -97,43 +105,24 @@ export default function SignUp() {
       setEmailError(false);
       setEmailErrorMessage("");
     }
-
     if (!password || password.length < 6) {
       setPasswordError(true);
       setPasswordErrorMessage("Password must be at least 6 characters long.");
       isValid = false;
     } else {
-      setPasswordError(true);
+      setPasswordError(false);
       setPasswordErrorMessage("");
     }
-
-    if (!confirmPassword || confirmPassword.length < 6) {
+    
+    if (password !== confirmPassword) {
       setConfirmError(true);
-      setConfirmErrorMessage(
-        "confirm Password must be at least 6 characters long."
-      );
+      setConfirmErrorMessage("password and confirm password does not match");
       isValid = false;
     } else {
       setConfirmError(false);
       setConfirmErrorMessage("");
     }
-    if (!name || name.length < 1) {
-      setNameError(true);
-      setNameErrorMessage("Name is required.");
-      isValid = false;
-    } else {
-      setNameError(false);
-      setNameErrorMessage("");
-    }
-
-    if (password !== confirmPassword) {
-      setPasswordError(true);
-      setPasswordErrorMessage("Password and confirm password not match");
-      isValid = false;
-    } else {
-      setPasswordError(false);
-      setPasswordErrorMessage("");
-    }
+    
     if (isValid) {
       const data = {
         name,
