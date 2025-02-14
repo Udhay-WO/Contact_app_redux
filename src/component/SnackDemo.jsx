@@ -1,13 +1,11 @@
 /* eslint-disable react/prop-types */
-import * as React from 'react';
-import Snackbar from '@mui/material/Snackbar';
-import IconButton from '@mui/material/IconButton';
+import * as React from "react";
+import Snackbar from "@mui/material/Snackbar";
+import IconButton from "@mui/material/IconButton";
 
-
-export default function SnackDemo({open,set,message}) {
-
+export default function SnackDemo({ open, set, message }) {
   const handleClose = (event, reason) => {
-    if (reason === 'clickaway') {
+    if (reason === "clickaway") {
       return;
     }
 
@@ -21,18 +19,15 @@ export default function SnackDemo({open,set,message}) {
         aria-label="close"
         color="inherit"
         onClick={handleClose}
-      >
-        
-      </IconButton>
+      ></IconButton>
     </React.Fragment>
   );
-
   return (
     <div>
       <Snackbar
         open={open}
-        anchorOrigin={{vertical:"top",horizontal:"center"}}
-        autoHideDuration={4000}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        autoHideDuration={1000}
         onClose={handleClose}
         message={message}
         action={action}

@@ -54,6 +54,7 @@ const ContactForm = ({ uuid, getData }) => {
     setPhoneNumber("");
     setImage(null);
     inputRef.current.value = null;
+    getData(data);
     setOpen(true);
     setMessage("Contact added success");
   };
@@ -80,10 +81,10 @@ const ContactForm = ({ uuid, getData }) => {
     removeSessionStorage("updateid");
     removeSessionStorage("contact");
     inputRef.current.value = null;
+    getData(data);
     setOpen(true);
     setMessage("Contact updated success");
     seteditId("");
-    getData();
   };
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -114,13 +115,11 @@ const ContactForm = ({ uuid, getData }) => {
         {editId ? "Edit Contact" : "Add Contact"}
       </h2>
       <form
-        action=""
         method="post"
         style={{ display: "flex", flexDirection: "column" }}
         onSubmit={handleSubmit}
       >
         <div style={{ display: "flex", justifyContent: "space-around" }}>
-          {" "}
           <label htmlFor="name">Name</label>
           <input
             type="text"
@@ -138,7 +137,7 @@ const ContactForm = ({ uuid, getData }) => {
             name="email"
             value={email}
             onChange={handleEmail}
-            pattern="/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+            pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
             required
           />
         </div>
@@ -163,6 +162,7 @@ const ContactForm = ({ uuid, getData }) => {
             name="image"
             onChange={handleImage}
             ref={inputRef}
+            required
           />
         </div>
 

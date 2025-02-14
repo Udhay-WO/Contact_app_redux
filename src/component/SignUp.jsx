@@ -12,7 +12,10 @@ import { styled } from "@mui/material/styles";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { setLocalStorageData } from "./LocalStorageOperation";
+import {
+  getLocalStorageData,
+  setLocalStorageData,
+} from "./LocalStorageOperation";
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -75,6 +78,14 @@ export default function SignUp() {
   };
   const handleEmail = (e) => {
     setEmail(e.target.value);
+    // let checkEmail = getLocalStorageData();
+    // checkEmail.map((item)=> {
+    //   if(email == item.email){
+    //     console.log("inside");
+    //     setEmailError(true);
+    //     setEmailErrorMessage("Email already exist");
+    //   }
+    // })
   };
   const handlePassword = (e) => {
     setPassword(e.target.value);
@@ -86,6 +97,9 @@ export default function SignUp() {
   const validateInputs = (e) => {
     e.preventDefault();
     let isValid = true;
+    let userData = getLocalStorageData() || [];
+    console.log(userData);
+    let checkEmail = userData.some((item) => item.email == email);
     if (!name || name.length < 1) {
       setNameError(true);
       setNameErrorMessage("Name is required.");
@@ -101,11 +115,19 @@ export default function SignUp() {
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       setEmailError(true);
       setEmailErrorMessage("Please enter a valid email address.");
+    } else if (checkEmail) {
+      setEmailError(true);
+      setEmailErrorMessage("user already exists");
+      isValid = false;
     } else {
       setEmailError(false);
       setEmailErrorMessage("");
     }
-    if (!password || password.length < 6) {
+    if (!password) {
+      setPasswordError(true);
+      setPasswordErrorMessage("Please enter password.");
+      isValid = false;
+    } else if (password.length < 6) {
       setPasswordError(true);
       setPasswordErrorMessage("Password must be at least 6 characters long.");
       isValid = false;
@@ -113,7 +135,7 @@ export default function SignUp() {
       setPasswordError(false);
       setPasswordErrorMessage("");
     }
-    
+
     if (password !== confirmPassword) {
       setConfirmError(true);
       setConfirmErrorMessage("password and confirm password does not match");
@@ -122,7 +144,7 @@ export default function SignUp() {
       setConfirmError(false);
       setConfirmErrorMessage("");
     }
-    
+
     if (isValid) {
       const data = {
         name,
@@ -168,7 +190,6 @@ export default function SignUp() {
                 name="name"
                 required
                 fullWidth
-                id="name"
                 placeholder="Enter name"
                 error={nameError}
                 value={name}
@@ -182,7 +203,6 @@ export default function SignUp() {
               <TextField
                 required
                 fullWidth
-                id="email"
                 placeholder="your@email.com"
                 name="email"
                 autoComplete="email"
@@ -202,7 +222,6 @@ export default function SignUp() {
                 name="password"
                 placeholder="••••••"
                 type="password"
-                id="password"
                 variant="outlined"
                 value={password}
                 onChange={handlePassword}
@@ -219,7 +238,6 @@ export default function SignUp() {
                 name="confirmpassword"
                 placeholder="••••••"
                 type="password"
-                id="confirmpassword"
                 variant="outlined"
                 value={confirmPassword}
                 onChange={handleConfirmPassword}
