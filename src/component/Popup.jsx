@@ -1,4 +1,3 @@
-// Filename: App.js
 import Pop from "reactjs-popup";
 import "reactjs-popup/dist/index.css";
 import SnackDemo from "./SnackDemo";
@@ -8,29 +7,41 @@ import { useNavigate } from "react-router-dom";
 import { useState, useRef } from "react";
 import {
   getLocalStorageData,
+  getSessionStorageData,
   removeSessionStorage,
   setLocalStorageData,
 } from "./LocalStorageOperation";
 export default function Popup() {
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-  const [uuid, setuuid] = useState();
-  const [message, setMessage] = useState("");
+  const [open, setOpen] = useState(true);
+  const [updateId, setUpdateId] = useState();
+  const [message, setMessage] = useState(sessionStorage.getItem("message"));
+  sessionStorage.removeItem("message");
   const [contactData, setContactData] = useState(getLocalStorageData());
   const inputRef = useRef();
   const handleLogout = () => {
-    removeSessionStorage("email");
-    removeSessionStorage("authToken");
-    navigate("/");
+    const result = confirm("Want to Logout ?");
+    if (result) {
+      removeSessionStorage("email");
+      removeSessionStorage("authToken");
+      sessionStorage.setItem("message", "User Logout");
+      navigate("/");
+    }
   };
+  const name = contactData.map((item) => {
+    if (item.email == getSessionStorageData("email")) {
+      return item.name;
+    }
+  });
   const handleExport = () => {
-    const data = JSON.parse(localStorage.getItem("users"));
-    const email = sessionStorage.getItem("email");
+    const data = getLocalStorageData();
+    const email = getSessionStorageData("email");
     const contact = data.map((item) => {
       if (item.email == email) {
         return item.contact;
       }
     });
+
     const blob = new Blob([JSON.stringify(contact)], {
       type: "application/json",
     });
@@ -59,68 +70,86 @@ export default function Popup() {
     reader.readAsText(file);
   };
   const handleCall = (dat) => {
-    setuuid(dat);
+    setUpdateId(dat);
   };
   const handleCancel = (data) => {
     setContactData(data);
-    setuuid("");
+    setUpdateId("");
   };
   return (
-    <div>
-      <SnackDemo open={open} set={setOpen} message={message} />
-      <h4 style={{ textAlign: "center" }}>Contact Page</h4>
-
-      <Pop
-        trigger={<button> {uuid ? "Edit Contact" : "Add Contact"} </button>}
-        modal
-        nested
-      >
-        {(close) => (
-          <div className="modal">
-            <ContactForm uuid={uuid} getData={handleCancel} />
-            <div>
-              <button
-                onClick={() => {
-                  close();
-                  removeSessionStorage("updateid");
-                  removeSessionStorage("contact");
-                  setuuid("");
-                }}
-              >
-                {uuid ? "Edit" : ""} Cancel
-              </button>
-            </div>
-          </div>
-        )}
-      </Pop>
-      <button
-        onClick={handleLogout}
+    <>
+      <header
         style={{
-          position: "absolute",
-          top: "5rem",
-          right: "5rem",
-          backgroundColor: "skyblue",
-          color: "white",
-        }}
-      >
-        Logout
-      </button>
-      <div
-        style={{
+          width: "100%",
           display: "flex",
+          position: "absolute",
+          top: "0px",
+          right: "0px",
+          left: "0px",
           justifyContent: "space-between",
           alignItems: "center",
-          columnGap: "20px",
-          marginTop: "20px",
+          backgroundColor: "skyblue",
         }}
       >
-        <button onClick={handleExport}>Export</button>
-        <div>
-          <label htmlFor="import">Import contact &nbsp;</label>
-          <input type="file" onChange={handleImport} ref={inputRef} />
-        </div>
+        <h2 style={{ marginLeft: "10px", color: "white" }}>
+          {" "}
+          Welcome, {name}{" "}
+        </h2>
+        <button
+          onClick={handleLogout}
+          style={{
+            backgroundColor: "lightblue",
+            color: "white",
+            marginRight: "10px",
+          }}
+        >
+          Logout
+        </button>
+      </header>
+      <div>
+        <SnackDemo open={open} set={setOpen} message={message} />
+        <h3 style={{ textAlign: "center", marginTop: "80px" }}>Contact Page</h3>
+
+        <Pop
+          trigger={
+            <button> {updateId ? "Edit Contact" : "Add Contact"} </button>
+          }
+          modal
+          nested
+        >
+          {(close) => (
+            <div className="modal">
+              <ContactForm updateId={updateId} getData={handleCancel} />
+              <div>
+                <button
+                  onClick={() => {
+                    close();
+                    removeSessionStorage("updateid");
+                    removeSessionStorage("contact");
+                    setUpdateId("");
+                  }}
+                >
+                  {updateId ? "Edit" : ""} Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </Pop>
+        <button onClick={handleExport} style={{ marginLeft: "10px" }}>
+          Export
+        </button>
+        <label htmlFor="import" style={{ marginLeft: "15px" }}>
+          Upload Image :{" "}
+        </label>
+        <input
+          type="file"
+          onChange={handleImport}
+          ref={inputRef}
+          name="import"
+          id="import"
+        />
+        <ContactList sendData={handleCall} contactData={contactData} />
       </div>
-      <ContactList sendData={handleCall} contactData={contactData} />
-    </div>
+    </>
   );
 }

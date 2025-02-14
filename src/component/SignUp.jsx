@@ -8,6 +8,7 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
+
 import { styled } from "@mui/material/styles";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
@@ -78,14 +79,6 @@ export default function SignUp() {
   };
   const handleEmail = (e) => {
     setEmail(e.target.value);
-    // let checkEmail = getLocalStorageData();
-    // checkEmail.map((item)=> {
-    //   if(email == item.email){
-    //     console.log("inside");
-    //     setEmailError(true);
-    //     setEmailErrorMessage("Email already exist");
-    //   }
-    // })
   };
   const handlePassword = (e) => {
     setPassword(e.target.value);
@@ -93,7 +86,6 @@ export default function SignUp() {
   const handleConfirmPassword = (e) => {
     setConfirmPassword(e.target.value);
   };
-
   const validateInputs = (e) => {
     e.preventDefault();
     let isValid = true;
@@ -144,7 +136,6 @@ export default function SignUp() {
       setConfirmError(false);
       setConfirmErrorMessage("");
     }
-
     if (isValid) {
       const data = {
         name,
@@ -159,10 +150,10 @@ export default function SignUp() {
       setEmail("");
       setPassword("");
       setConfirmPassword("");
+      sessionStorage.setItem("message","Users registered successfully");
       navigate("/");
     }
   };
-
   return (
     <>
       <CssBaseline enableColorScheme />
@@ -262,6 +253,7 @@ export default function SignUp() {
           </Box>
         </Card>
       </SignUpContainer>
+     
     </>
   );
 }

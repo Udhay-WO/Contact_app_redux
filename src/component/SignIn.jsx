@@ -9,6 +9,7 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
+import SnackDemo from "./SnackDemo";
 import { styled } from "@mui/material/styles";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
@@ -36,7 +37,6 @@ const Card = styled(MuiCard)(({ theme }) => ({
       "hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px",
   }),
 }));
-
 const SignInContainer = styled(Stack)(({ theme }) => ({
   height: "calc((1 - var(--template-frame-height, 0)) * 100dvh)",
   minHeight: "100%",
@@ -59,16 +59,17 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
     }),
   },
 }));
-
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const [open, setOpen] = useState(true);
+  
+  const message = sessionStorage.getItem("message");
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
-
   const handleemail = (e) => {
     setEmail(e.target.value);
   };
@@ -86,7 +87,6 @@ export default function SignIn() {
       setEmailError(false);
       setEmailErrorMessage("");
     }
-
     if (!password || password.length < 6) {
       setPasswordError(true);
       setPasswordErrorMessage("Password must be at least 6 characters long.");
@@ -95,7 +95,6 @@ export default function SignIn() {
       setPasswordError(false);
       setPasswordErrorMessage("");
     }
-
     if (isValid) {
       const data = getLocalStorageData();
       const validemail = data.find((item) => {
@@ -105,6 +104,7 @@ export default function SignIn() {
         if (validemail.password == password) {
           setSessionStorageEmail(email);
           setSessionStorageAuthToken();
+          sessionStorage.setItem("message","Login Successfull")
           navigate("/contactform");
         } else {
           setPasswordError(true);
@@ -116,7 +116,6 @@ export default function SignIn() {
       }
     }
   };
-
   return (
     <>
       <CssBaseline enableColorScheme />
@@ -195,6 +194,7 @@ export default function SignIn() {
           </Box>
         </Card>
       </SignInContainer>
+      <SnackDemo open={open} set={setOpen} message={message} />
     </>
   );
 }

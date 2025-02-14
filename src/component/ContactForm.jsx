@@ -7,7 +7,7 @@ import {
   removeSessionStorage,
   setLocalStorageData,
 } from "./LocalStorageOperation";
-const ContactForm = ({ uuid, getData }) => {
+const ContactForm = ({ updateId, getData }) => {
   const contact = JSON.parse(getSessionStorageData("contact"));
   const [name, setName] = useState(contact ? contact.name : "");
   const [email, setEmail] = useState(contact ? contact.email : "");
@@ -17,11 +17,12 @@ const ContactForm = ({ uuid, getData }) => {
   const [image, setImage] = useState(contact ? contact.image : "");
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [editId, seteditId] = useState(uuid);
+  const [editId, seteditId] = useState(updateId);
+  const [nameError, setNameError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [numberError, setNumberError] = useState("");
   const inputRef = useRef();
-  let updateId = getSessionStorageData("updateid") || null;
-
+  let sessionUpdateId = getSessionStorageData("updateid") || null;
   const handleName = (e) => {
     setName(e.target.value);
   };
@@ -52,7 +53,6 @@ const ContactForm = ({ uuid, getData }) => {
     setName("");
     setEmail("");
     setPhoneNumber("");
-    setImage(null);
     inputRef.current.value = null;
     getData(data);
     setOpen(true);
@@ -62,7 +62,7 @@ const ContactForm = ({ uuid, getData }) => {
     data.map((element) => {
       if (element.email == sessiondata) {
         return element.contact.map((item, index) => {
-          if (index == updateId) {
+          if (index == sessionUpdateId) {
             return Object.assign(item, {
               name: name,
               email: email,
@@ -77,7 +77,6 @@ const ContactForm = ({ uuid, getData }) => {
     setName("");
     setEmail("");
     setPhoneNumber("");
-    setImage(null);
     removeSessionStorage("updateid");
     removeSessionStorage("contact");
     inputRef.current.value = null;
@@ -92,10 +91,25 @@ const ContactForm = ({ uuid, getData }) => {
     const sessiondata = getSessionStorageData("email");
     let isValid = true;
     if (name.trim() == "") {
+      setNameError("Name is required.");
       isValid = false;
+    } else {
+      setNameError("");
     }
     if (phoneNumber.trim() == "") {
+      setNumberError("Please enter phone number.");
       isValid = false;
+    } else {
+      setNumberError("");
+    }
+    if (email.trim() == "") {
+      setEmailError("Please enter email address.");
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      setEmailError("Please enter valid email address.");
+      isValid = false;
+    } else {
+      setEmailError("");
     }
     if (isValid) {
       if (updateId) {
@@ -103,33 +117,24 @@ const ContactForm = ({ uuid, getData }) => {
       } else {
         insertContact(data, sessiondata);
       }
-      setErrorMessage("");
-    } else {
-      setErrorMessage("Please fill name & phone number fields");
     }
   };
   return (
     <div>
       <h2 style={{ textAlign: "center" }}>
-        {" "}
         {editId ? "Edit Contact" : "Add Contact"}
       </h2>
       <form
-        method="post"
-        style={{ display: "flex", flexDirection: "column" }}
+        style={{ display: "flex", flexDirection: "column", rowGap: "10px" }}
         onSubmit={handleSubmit}
       >
         <div style={{ display: "flex", justifyContent: "space-around" }}>
           <label htmlFor="name">Name</label>
-          <input
-            type="text"
-            name="name"
-            value={name}
-            onChange={handleName}
-            required
-          />
+          <input type="text" name="name" value={name} onChange={handleName} />
         </div>
-        <br />
+        <div style={{ textAlign: "center", color: "red", fontSize: "0.8rem" }}>
+          {nameError}
+        </div>
         <div style={{ display: "flex", justifyContent: "space-around" }}>
           <label htmlFor="email">Email </label>
           <input
@@ -137,11 +142,14 @@ const ContactForm = ({ uuid, getData }) => {
             name="email"
             value={email}
             onChange={handleEmail}
-            pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-            required
+            pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
+            title="Please enter valid email address"
           />
         </div>
-        <br />
+        <div style={{ textAlign: "center", color: "red", fontSize: "0.8rem" }}>
+          {emailError}
+        </div>
+
         <div style={{ display: "flex", justifyContent: "space-around" }}>
           <label htmlFor="phone">Phone number</label>
           <input
@@ -150,24 +158,36 @@ const ContactForm = ({ uuid, getData }) => {
             placeholder="Enter 10 digit number"
             value={phoneNumber}
             onChange={handlePhoneNumber}
-            required
             pattern="[0-9]{10}"
           />
         </div>
-        <br />
-        <div style={{ display: "flex", justifyContent: "space-around" }}>
-          <label htmlFor="image">Upload image</label>
+        <div style={{ textAlign: "center", color: "red", fontSize: "0.8rem" }}>
+          {numberError}
+        </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-evenly",
+            alignItems: "center",
+          }}
+        >
+          <label htmlFor="image">
+            <img
+              src="https://cdn.dribbble.com/userupload/23482189/file/original-4b4341b1c99f00f52c5f4b278d556409.png?resize=400x0"
+              alt="upload image"
+              width="200px"
+              height="120px"
+            />
+          </label>
+          
           <input
             type="file"
+            id="image"
             name="image"
             onChange={handleImage}
             ref={inputRef}
-            required
           />
         </div>
-
-        <br />
-        <div style={{ textAlign: "center", color: "red" }}>{errorMessage}</div>
         <br />
         <div style={{ display: "flex", justifyContent: "center" }}>
           <button
@@ -178,7 +198,6 @@ const ContactForm = ({ uuid, getData }) => {
           </button>
         </div>
       </form>
-
       <SnackDemo open={open} set={setOpen} message={message} />
     </div>
   );
