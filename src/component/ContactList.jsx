@@ -90,9 +90,7 @@ export const ContactList = ({ sendData, contactData }) => {
           <p style={{textAlign:"center",color:"red"}}>No contact found</p>
         )
       }
-    
-
-      <SnackDemo open={open} set={setOpen} message={"Contact Deleted"} />
+        <SnackDemo open={open} set={setOpen} message={"Contact Deleted"} />
     </div>
   );
 };

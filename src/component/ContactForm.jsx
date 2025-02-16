@@ -26,7 +26,7 @@ const ContactForm = ({ updateId, getData,close }) => {
   const inputRef = useRef();
 
   let sessionUpdateId = getSessionStorageData("updateid") || null;
-
+  console.log(sessionUpdateId)
   const handleRemoveImage = () => {
     setImage("");
   };
@@ -97,19 +97,20 @@ const ContactForm = ({ updateId, getData,close }) => {
       close();
     }, 1000);
   };
-
   const updateContact = (data, sessiondata) => {
-    data.map((element) => {
+    data.forEach((element) => {
       if (element.email === sessiondata) {
-        return element.contact.map((item, index) => {
-          if (index === sessionUpdateId) {
-            return Object.assign(item, {
+        element.contact = element.contact.map((item, index) => {
+          if (index == sessionUpdateId) {
+            return {
+              ...item,
               name: name,
               email: email,
               phoneNumber: phoneNumber,
               image: image,
-            });
+            }
           }
+          return item;
         });
       }
     });
@@ -123,13 +124,16 @@ const ContactForm = ({ updateId, getData,close }) => {
     getData(data);
     setOpen(true);
     setMessage("Contact updated successfully");
+    setTimeout(() => {
+      close();
+    }, 1000);
     seteditId("");
   };
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
       const data = getLocalStorageData();
-      const sessiondata = getSessionStorageData("email");
+      let sessiondata = getSessionStorageData("email");
       if (updateId) {
         updateContact(data, sessiondata);
       } else {
