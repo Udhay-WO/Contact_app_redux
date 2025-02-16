@@ -36,13 +36,13 @@ export default function Popup() {
   const handleExport = () => {
     const data = getLocalStorageData();
     const email = getSessionStorageData("email");
-    const contact = data.map((item) => {
-      if (item.email == email) {
-        return item.contact;
-      }
-    });
-
-    const blob = new Blob([JSON.stringify(contact)], {
+    const user = data.find((item) => item.email === email);
+    if (!user || !user.contact.length) {
+      setMessage("No contacts to export!");
+      setOpen(true);
+      return;
+    }
+    const blob = new Blob([JSON.stringify(user.contact, null, 2)], {
       type: "application/json",
     });
     const url = URL.createObjectURL(blob);
@@ -50,16 +50,21 @@ export default function Popup() {
     a.href = url;
     a.download = "contacts.json";
     a.click();
-    setMessage("Contact exported");
+    URL.revokeObjectURL(url);
+    setMessage("Contacts exported successfully!");
     setOpen(true);
-  };
+  };  
   const handleImport = (e) => {
+    const result = confirm("Want to Import Contact ?");
+    if(result){
     const file = e.target.files[0];
     const reader = new FileReader();
     reader.onloadend = () => {
       const fileData = JSON.parse(reader.result);
       contactData.forEach((item) => {
-        item.contact.push(fileData);
+        if(item.email ==  getSessionStorageData("email")){
+          item.contact = [...item.contact,...fileData];
+        }
       });
       setLocalStorageData(contactData);
       setContactData(contactData);
@@ -68,6 +73,9 @@ export default function Popup() {
       setOpen(true);
     };
     reader.readAsText(file);
+  }else{
+    inputRef.current.value = "";
+  }
   };
   const handleCall = (dat) => {
     setUpdateId(dat);
@@ -119,7 +127,7 @@ export default function Popup() {
         >
           {(close) => (
             <div className="modal">
-              <ContactForm updateId={updateId} getData={handleCancel} />
+              <ContactForm updateId={updateId} getData={handleCancel} close={close}/>
               <div>
                 <button
                   onClick={() => {
@@ -139,7 +147,7 @@ export default function Popup() {
           Export
         </button>
         <label htmlFor="import" style={{ marginLeft: "15px" }}>
-          Upload Image :{" "}
+          Import Contact :{" "}
         </label>
         <input
           type="file"
@@ -148,7 +156,8 @@ export default function Popup() {
           name="import"
           id="import"
         />
-        <ContactList sendData={handleCall} contactData={contactData} />
+         <ContactList sendData={handleCall} contactData={contactData} />
+       
       </div>
     </>
   );

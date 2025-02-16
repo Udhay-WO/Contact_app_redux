@@ -64,7 +64,6 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
-  
   const message = sessionStorage.getItem("message");
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");

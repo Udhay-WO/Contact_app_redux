@@ -1,13 +1,15 @@
 /* eslint-disable react/prop-types */
 import { useState, useRef } from "react";
 import SnackDemo from "./SnackDemo";
+import "./ContactForm.css";
 import {
   getLocalStorageData,
   getSessionStorageData,
   removeSessionStorage,
   setLocalStorageData,
 } from "./LocalStorageOperation";
-const ContactForm = ({ updateId, getData }) => {
+
+const ContactForm = ({ updateId, getData,close }) => {
   const contact = JSON.parse(getSessionStorageData("contact"));
   const [name, setName] = useState(contact ? contact.name : "");
   const [email, setEmail] = useState(contact ? contact.email : "");
@@ -22,16 +24,13 @@ const ContactForm = ({ updateId, getData }) => {
   const [emailError, setEmailError] = useState("");
   const [numberError, setNumberError] = useState("");
   const inputRef = useRef();
+
   let sessionUpdateId = getSessionStorageData("updateid") || null;
-  const handleName = (e) => {
-    setName(e.target.value);
+
+  const handleRemoveImage = () => {
+    setImage("");
   };
-  const handleEmail = (e) => {
-    setEmail(e.target.value);
-  };
-  const handlePhoneNumber = (e) => {
-    setPhoneNumber(e.target.value);
-  };
+
   const handleImage = (e) => {
     const file = e.target.files[0];
     const reader = new FileReader();
@@ -43,9 +42,46 @@ const ContactForm = ({ updateId, getData }) => {
     };
     reader.readAsDataURL(file);
   };
+
+  const validateForm = () => {
+    let isValid = true;
+
+    if (!name.trim()) {
+      setNameError("Name is required.");
+      isValid = false;
+    } else if (!/^[A-Za-z\s]{2,}$/.test(name)) {
+      setNameError("Name should contain only letters and be at least 2 characters long.");
+      isValid = false;
+    } else {
+      setNameError("");
+    }
+
+    if (!email.trim()) {
+      setEmailError("Please enter email address.");
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      setEmailError("Please enter a valid email address.");
+      isValid = false;
+    } else {
+      setEmailError("");
+    }
+
+    if (!phoneNumber.trim()) {
+      setNumberError("Please enter phone number.");
+      isValid = false;
+    } else if (!/^\d{10}$/.test(phoneNumber)) {
+      setNumberError("Phone number must be exactly 10 digits.");
+      isValid = false;
+    } else {
+      setNumberError("");
+    }
+
+    return isValid;
+  };
+
   const insertContact = (data, sessiondata) => {
     data.forEach((element) => {
-      if (element.email == sessiondata) {
+      if (element.email === sessiondata) {
         element.contact.push({ name, email, phoneNumber, image });
       }
     });
@@ -56,13 +92,17 @@ const ContactForm = ({ updateId, getData }) => {
     inputRef.current.value = null;
     getData(data);
     setOpen(true);
-    setMessage("Contact added success");
+    setMessage("Contact added successfully");
+    setTimeout(() => {
+      close();
+    }, 1000);
   };
+
   const updateContact = (data, sessiondata) => {
     data.map((element) => {
-      if (element.email == sessiondata) {
+      if (element.email === sessiondata) {
         return element.contact.map((item, index) => {
-          if (index == sessionUpdateId) {
+          if (index === sessionUpdateId) {
             return Object.assign(item, {
               name: name,
               email: email,
@@ -82,36 +122,14 @@ const ContactForm = ({ updateId, getData }) => {
     inputRef.current.value = null;
     getData(data);
     setOpen(true);
-    setMessage("Contact updated success");
+    setMessage("Contact updated successfully");
     seteditId("");
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    const data = getLocalStorageData();
-    const sessiondata = getSessionStorageData("email");
-    let isValid = true;
-    if (name.trim() == "") {
-      setNameError("Name is required.");
-      isValid = false;
-    } else {
-      setNameError("");
-    }
-    if (phoneNumber.trim() == "") {
-      setNumberError("Please enter phone number.");
-      isValid = false;
-    } else {
-      setNumberError("");
-    }
-    if (email.trim() == "") {
-      setEmailError("Please enter email address.");
-      isValid = false;
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      setEmailError("Please enter valid email address.");
-      isValid = false;
-    } else {
-      setEmailError("");
-    }
-    if (isValid) {
+    if (validateForm()) {
+      const data = getLocalStorageData();
+      const sessiondata = getSessionStorageData("email");
       if (updateId) {
         updateContact(data, sessiondata);
       } else {
@@ -120,85 +138,57 @@ const ContactForm = ({ updateId, getData }) => {
     }
   };
   return (
-    <div>
-      <h2 style={{ textAlign: "center" }}>
-        {editId ? "Edit Contact" : "Add Contact"}
-      </h2>
-      <form
-        style={{ display: "flex", flexDirection: "column", rowGap: "10px" }}
-        onSubmit={handleSubmit}
-      >
-        <div style={{ display: "flex", justifyContent: "space-around" }}>
+    <div className="contact-form-container">
+      <h2>{editId ? "Edit Contact" : "Add Contact"}</h2>
+      <form onSubmit={handleSubmit} className="contact-form">
+        <div className="input-group">
           <label htmlFor="name">Name</label>
-          <input type="text" name="name" value={name} onChange={handleName} />
-        </div>
-        <div style={{ textAlign: "center", color: "red", fontSize: "0.8rem" }}>
-          {nameError}
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-around" }}>
-          <label htmlFor="email">Email </label>
-          <input
-            type="email"
-            name="email"
-            value={email}
-            onChange={handleEmail}
-            pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
-            title="Please enter valid email address"
-          />
-        </div>
-        <div style={{ textAlign: "center", color: "red", fontSize: "0.8rem" }}>
-          {emailError}
+          <input type="text" name="name" value={name} onChange={(e) => setName(e.target.value)} />
+          <small className="error">{nameError}</small>
         </div>
 
-        <div style={{ display: "flex", justifyContent: "space-around" }}>
-          <label htmlFor="phone">Phone number</label>
-          <input
-            type="tel"
-            name="phone"
-            placeholder="Enter 10 digit number"
-            value={phoneNumber}
-            onChange={handlePhoneNumber}
-            pattern="[0-9]{10}"
-          />
+        <div className="input-group">
+          <label htmlFor="email">Email</label>
+          <input type="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <small className="error">{emailError}</small>
         </div>
-        <div style={{ textAlign: "center", color: "red", fontSize: "0.8rem" }}>
-          {numberError}
+
+        <div className="input-group">
+          <label htmlFor="phone">Phone Number</label>
+          <input type="tel" name="phone" placeholder="Enter 10-digit number" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+          <small className="error">{numberError}</small>
         </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-evenly",
-            alignItems: "center",
-          }}
-        >
+
+        <div className="input-group file-upload">
           <label htmlFor="image">
             <img
-              src="https://cdn.dribbble.com/userupload/23482189/file/original-4b4341b1c99f00f52c5f4b278d556409.png?resize=400x0"
-              alt="upload image"
-              width="200px"
-              height="120px"
+              src={
+                image
+                  ? `data:image/png;base64,${image}`
+                  : "https://cdn.dribbble.com/userupload/23482189/file/original-4b4341b1c99f00f52c5f4b278d556409.png?resize=400x0"
+              }
+              alt="upload"
+              className="upload-icon"
+              width="100px"
+              height="80px"
             />
           </label>
-          
-          <input
-            type="file"
-            id="image"
-            name="image"
-            onChange={handleImage}
-            ref={inputRef}
-          />
+          <input type="file" id="image" name="image" onChange={handleImage} ref={inputRef} />
+
+          {image && (
+            <button type="button" className="remove-image-btn" onClick={handleRemoveImage}>
+              Remove Image
+            </button>
+          )}
         </div>
-        <br />
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <button
-            type="submit"
-            style={{ width: "180px", backgroundColor: "lightblue" }}
-          >
-            {editId ? "Edit Contact" : "Add Contact"}
-          </button>
-        </div>
+
+        <button type="submit" className="submit-btn">
+          {editId ? "Edit Contact" : "Add Contact"}
+        </button>
       </form>
-      <SnackDemo open={open} set={setOpen} message={message} />
+
+      {/* Show Snackbar only on Add or Update */}
+      {open && <SnackDemo open={open} set={setOpen} message={message} />}
     </div>
   );
 };
