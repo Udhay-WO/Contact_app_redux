@@ -15,6 +15,7 @@ export const ContactList = ({ sendData, contactData }) => {
   const [openConfirm, setOpenConfirm] = useState(false);
   const [confrimMessage, setConfirmMessage] = useState("");
   const [contactList, setContactList] = useState(contactData);
+
   useEffect(() => {
     setContactList(contactData);
   }, [contactData]);

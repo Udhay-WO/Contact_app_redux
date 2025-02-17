@@ -19,7 +19,6 @@ const ContactForm = ({ updateId, contact, close, getData }) => {
   const [editId, seteditId] = useState(
     updateId ? JSON.stringify(updateId) : null
   );
-  console.log(editId);
   const [nameError, setNameError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [numberError, setNumberError] = useState("");
@@ -71,7 +70,6 @@ const ContactForm = ({ updateId, contact, close, getData }) => {
     }
     return isValid;
   };
-
   const insertContact = (data, sessiondata) => {
     data.forEach((element) => {
       if (element.email === sessiondata) {
@@ -96,11 +94,7 @@ const ContactForm = ({ updateId, contact, close, getData }) => {
     const updatedData = data.map((element) => {
       if (element.email === sessiondata) {
         const updatedContact = element.contact.map((item) => {
-          console.log(item.contactid);
-          console.log(editId);
           if (item.contactid === updateId) {
-            console.log(item.contactid);
-            console.log(editId);
             return {
               ...item,
               name: name,
@@ -141,7 +135,7 @@ const ContactForm = ({ updateId, contact, close, getData }) => {
       <h2>{editId ? "Edit Contact" : "Add Contact"}</h2>
       <form onSubmit={handleSubmit} className="contact-form">
         <div className="input-group">
-          <label htmlFor="name">Name</label>
+          <label>Name</label>
           <input
             type="text"
             name="name"
@@ -152,7 +146,7 @@ const ContactForm = ({ updateId, contact, close, getData }) => {
           <small className="error">{nameError}</small>
         </div>
         <div className="input-group">
-          <label htmlFor="email">Email</label>
+          <label>Email</label>
           <input
             type="email"
             name="email"
@@ -163,7 +157,7 @@ const ContactForm = ({ updateId, contact, close, getData }) => {
           <small className="error">{emailError}</small>
         </div>
         <div className="input-group">
-          <label htmlFor="phone">Phone Number</label>
+          <label>Phone Number</label>
           <input
             type="tel"
             name="phone"

@@ -138,7 +138,6 @@ export default function SignUp() {
     }
     const secretKey = "my-secret-key";
     const cipherText = CryptoJS.AES.encrypt(password, secretKey).toString();
-    console.log(uuidv4());
     if (isValid) {
       const data = {
         id: uuidv4(),
