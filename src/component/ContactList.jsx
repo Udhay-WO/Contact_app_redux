@@ -4,6 +4,7 @@ import "reactjs-popup/dist/index.css";
 import { useState, useEffect } from "react";
 import SnackDemo from "./SnackDemo";
 import ContactForm from "./ContactForm";
+import { useNavigate } from "react-router-dom";
 import {
   getSessionStorageData,
   setLocalStorageData,
@@ -15,7 +16,7 @@ export const ContactList = ({ sendData, contactData }) => {
   const [openConfirm, setOpenConfirm] = useState(false);
   const [confrimMessage, setConfirmMessage] = useState("");
   const [contactList, setContactList] = useState(contactData);
-
+  const navigate = useNavigate();
   useEffect(() => {
     setContactList(contactData);
   }, [contactData]);
@@ -98,41 +99,16 @@ export const ContactList = ({ sendData, contactData }) => {
                         {i.email}
                       </td>
                       <td style={{ width: "17rem", padding: "0px 10px" }}>
-                        <Pop
-                          trigger={
                             <button
                               style={{
                                 fontSize: "0.8rem",
                                 backgroundColor: "skyblue",
                                 marginLeft: "5px",
                               }}
+                              onClick={()=>navigate(`?contactid=${i.contactid}`)}
                             >
                               Edit contact
                             </button>
-                          }
-                          modal
-                          nested
-                        >
-                          {(close) => (
-                            <div className="modal">
-                              <ContactForm
-                                updateId={i.contactid}
-                                contact={i}
-                                close={close}
-                                getData={handleUpdate}
-                              />
-                              <div>
-                                <button
-                                  onClick={() => {
-                                    close();
-                                  }}
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                        </Pop>
                         <button
                           style={{
                             fontSize: "0.8rem",

@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState, useRef } from "react";
+import { useState, useRef,useEffect } from "react";
 import SnackDemo from "./SnackDemo";
 import { v4 as uuidv4 } from "uuid";
 import "./ContactForm.css";
@@ -23,6 +23,14 @@ const ContactForm = ({ updateId, contact, close, getData }) => {
   const [emailError, setEmailError] = useState("");
   const [numberError, setNumberError] = useState("");
   const inputRef = useRef();
+  useEffect(() => {
+    if (contact) {
+      setName(contact.name);
+      setEmail(contact.email);
+      setPhoneNumber(contact.phoneNumber);
+      setImage(contact.image);
+    }
+  }, [contact]);
   const handleRemoveImage = () => {
     setImage("");
   };

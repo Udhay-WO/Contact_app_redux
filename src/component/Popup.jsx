@@ -4,7 +4,7 @@ import SnackDemo from "./SnackDemo";
 import ContactForm from "./ContactForm";
 import { ContactList } from "./ContactList";
 import { useNavigate } from "react-router-dom";
-import { useState, useRef } from "react";
+import { useState, useRef,useEffect } from "react";
 import ConfirmDialog from "./ConfirmButton";
 import {
   getLocalStorageData,
@@ -12,7 +12,7 @@ import {
   removeSessionStorage,
   setLocalStorageData,
 } from "./LocalStorageOperation";
-
+import { useSearchParams } from "react-router-dom";
 export default function Popup() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
@@ -24,14 +24,26 @@ export default function Popup() {
   const [confrimMessage, setConfirmMessage] = useState("");
   const [openImportConfirm, setOpenImportConfirm] = useState(false);
   const [importFile, setImportFile] = useState(null);
-
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedContact, setSelectedContact] = useState(null);
+  const contactId = searchParams.get("contactid");
   const handleLogout = () => {
     removeSessionStorage("email");
     removeSessionStorage("authToken");
     sessionStorage.setItem("message", "User Logout");
     navigate("/");
   };
-
+  useEffect(() => {
+    if (contactId) {
+      const data = getLocalStorageData();
+      const email = getSessionStorageData("email");
+      const user = data.find((item) => item.email === email);
+      if (user) {
+        const contact = user.contact.find((c) => c.contactid === contactId);
+        setSelectedContact(contact || null);
+      }
+    }
+  }, [contactId]);
   const name = contactData.map((item) => {
     if (item.email == getSessionStorageData("email")) {
       return item.name;
@@ -142,7 +154,32 @@ export default function Popup() {
             justifyContent: "space-around",
           }}
         >
-          <Pop trigger={<button>Add Contact </button>} modal nested>
+          <Pop open={Boolean(contactId)} modal nested>
+        {(close) => (
+          <div className="modal">
+            <ContactForm
+              updateId={contactId}
+              contact={selectedContact}
+              getData={setContactData}
+              close={() => {
+                setSearchParams("");
+                close();
+              }}
+            />
+            <div>
+                  <button
+                    onClick={() => {
+                      close();
+                      navigate("/contactform")
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+          </div>
+        )}
+      </Pop>
+          <Pop trigger={<button>Add Contact </button>}  modal nested>
             {(close) => (
               <div className="modal">
                 <ContactForm
