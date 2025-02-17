@@ -10,12 +10,6 @@ export const setSessionStorageEmail = (email) => {
 export const setSessionStorageAuthToken = () => {
   return sessionStorage.setItem("authToken", true);
 };
-export const setSessionStorageContact = (contact) => {
-  return sessionStorage.setItem("contact", contact);
-};
-export const setSessionStorageUpdateId = (id) => {
-  return sessionStorage.setItem("updateid", id);
-};
 export const removeSessionStorage = (removeItem) => {
   return sessionStorage.removeItem(removeItem);
 };

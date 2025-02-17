@@ -8,6 +8,7 @@ import FormControl from "@mui/material/FormControl";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
+import CryptoJS from "crypto-js";
 import MuiCard from "@mui/material/Card";
 import SnackDemo from "./SnackDemo";
 import { styled } from "@mui/material/styles";
@@ -19,6 +20,7 @@ import {
   setSessionStorageAuthToken,
   setSessionStorageEmail,
 } from "./LocalStorageOperation";
+
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -59,6 +61,7 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
     }),
   },
 }));
+
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -69,23 +72,33 @@ export default function SignIn() {
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
-  const handleemail = (e) => {
+  const [authunticationMessage, setAuthunticationMessage] = React.useState("");
+
+  const handleEmail = (e) => {
     setEmail(e.target.value);
   };
-  const handlepassword = (e) => {
+
+  const handlePassword = (e) => {
     setPassword(e.target.value);
   };
-  const validateInputs = (e) => {
+
+  const validateInputs = async (e) => {
     e.preventDefault();
     let isValid = true;
-    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+
+    if (!email) {
       setEmailError(true);
-      setEmailErrorMessage("Please enter a valid email address.");
+      setEmailErrorMessage("Please enter email address.");
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      setEmailError(true);
+      setEmailErrorMessage("Please enter valid email address.");
       isValid = false;
     } else {
       setEmailError(false);
       setEmailErrorMessage("");
     }
+
     if (!password || password.length < 6) {
       setPasswordError(true);
       setPasswordErrorMessage("Password must be at least 6 characters long.");
@@ -94,27 +107,29 @@ export default function SignIn() {
       setPasswordError(false);
       setPasswordErrorMessage("");
     }
+
     if (isValid) {
       const data = getLocalStorageData();
-      const validemail = data.find((item) => {
-        return item.email == email && item;
-      });
-      if (validemail) {
-        if (validemail.password == password) {
+      const validEmail = data.find((item) => item.email === email);
+
+      if (validEmail) {
+        const secretKey = "my-secret-key";
+        const bytes = CryptoJS.AES.decrypt(validEmail.password, secretKey);
+        const decryptedPassword = bytes.toString(CryptoJS.enc.Utf8);
+        if (decryptedPassword === password) {
           setSessionStorageEmail(email);
           setSessionStorageAuthToken();
-          sessionStorage.setItem("message","Login Successfull")
+          sessionStorage.setItem("message", "Login successful");
           navigate("/contactform");
         } else {
-          setPasswordError(true);
-          setPasswordErrorMessage("Incorrect Password .");
+          setAuthunticationMessage("invalid user email address or password");
         }
       } else {
-        setEmailError(true);
-        setEmailErrorMessage("invalid email address.");
+        setAuthunticationMessage("invalid user email address or password");
       }
     }
   };
+
   return (
     <>
       <CssBaseline enableColorScheme />
@@ -151,7 +166,7 @@ export default function SignIn() {
                 required
                 fullWidth
                 value={email}
-                onChange={handleemail}
+                onChange={handleEmail}
                 variant="outlined"
                 color={emailError ? "error" : "primary"}
               />
@@ -170,11 +185,12 @@ export default function SignIn() {
                 required
                 fullWidth
                 value={password}
-                onChange={handlepassword}
+                onChange={handlePassword}
                 variant="outlined"
                 color={passwordError ? "error" : "primary"}
               />
             </FormControl>
+            <p style={{ color: "red" }}>{authunticationMessage}</p>
             <Button
               type="submit"
               fullWidth

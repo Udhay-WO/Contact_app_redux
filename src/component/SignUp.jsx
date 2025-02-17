@@ -8,11 +8,12 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
-
+import CryptoJS from "crypto-js";
 import { styled } from "@mui/material/styles";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 import {
   getLocalStorageData,
   setLocalStorageData,
@@ -90,7 +91,6 @@ export default function SignUp() {
     e.preventDefault();
     let isValid = true;
     let userData = getLocalStorageData() || [];
-    console.log(userData);
     let checkEmail = userData.some((item) => item.email == email);
     if (!name || name.length < 1) {
       setNameError(true);
@@ -136,11 +136,15 @@ export default function SignUp() {
       setConfirmError(false);
       setConfirmErrorMessage("");
     }
+    const secretKey = "my-secret-key";
+    const cipherText = CryptoJS.AES.encrypt(password, secretKey).toString();
+    console.log(uuidv4());
     if (isValid) {
       const data = {
+        id: uuidv4(),
         name,
         email,
-        password,
+        password: cipherText,
         contact: [],
       };
       const formdata = JSON.parse(localStorage.getItem("users") || "[]");
@@ -150,7 +154,7 @@ export default function SignUp() {
       setEmail("");
       setPassword("");
       setConfirmPassword("");
-      sessionStorage.setItem("message","Users registered successfully");
+      sessionStorage.setItem("message", "Users registered successfully");
       navigate("/");
     }
   };
@@ -253,7 +257,6 @@ export default function SignUp() {
           </Box>
         </Card>
       </SignUpContainer>
-     
     </>
   );
 }

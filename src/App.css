@@ -2,7 +2,9 @@
   display: flex;
   margin: 0 auto;
 }
-
+button{
+  cursor: pointer;
+}
 .logo {
   height: 6em;
   padding: 1.5em;

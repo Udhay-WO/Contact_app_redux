@@ -5,34 +5,39 @@ import ContactForm from "./ContactForm";
 import { ContactList } from "./ContactList";
 import { useNavigate } from "react-router-dom";
 import { useState, useRef } from "react";
+import ConfirmDialog from "./ConfirmButton";
 import {
   getLocalStorageData,
   getSessionStorageData,
   removeSessionStorage,
   setLocalStorageData,
 } from "./LocalStorageOperation";
+
 export default function Popup() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
-  const [updateId, setUpdateId] = useState();
+  const [updateId, setUpdateId] = useState(null);
   const [message, setMessage] = useState(sessionStorage.getItem("message"));
-  sessionStorage.removeItem("message");
   const [contactData, setContactData] = useState(getLocalStorageData());
   const inputRef = useRef();
+  const [openConfirm, setOpenConfirm] = useState(false);
+  const [confrimMessage, setConfirmMessage] = useState("");
+  const [openImportConfirm, setOpenImportConfirm] = useState(false);
+  const [importFile, setImportFile] = useState(null);
+
   const handleLogout = () => {
-    const result = confirm("Want to Logout ?");
-    if (result) {
-      removeSessionStorage("email");
-      removeSessionStorage("authToken");
-      sessionStorage.setItem("message", "User Logout");
-      navigate("/");
-    }
+    removeSessionStorage("email");
+    removeSessionStorage("authToken");
+    sessionStorage.setItem("message", "User Logout");
+    navigate("/");
   };
+
   const name = contactData.map((item) => {
     if (item.email == getSessionStorageData("email")) {
       return item.name;
     }
   });
+
   const handleExport = () => {
     const data = getLocalStorageData();
     const email = getSessionStorageData("email");
@@ -53,36 +58,43 @@ export default function Popup() {
     URL.revokeObjectURL(url);
     setMessage("Contacts exported successfully!");
     setOpen(true);
-  };  
-  const handleImport = (e) => {
-    const result = confirm("Want to Import Contact ?");
-    if(result){
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const fileData = JSON.parse(reader.result);
-      contactData.forEach((item) => {
-        if(item.email ==  getSessionStorageData("email")){
-          item.contact = [...item.contact,...fileData];
-        }
-      });
-      setLocalStorageData(contactData);
-      setContactData(contactData);
-      inputRef.current.value = null;
-      setMessage("Contact imported");
+  };
+
+  const handleImportWithConfirmation = (e) => {
+    setImportFile(e.target.files[0]);
+    setConfirmMessage("Are you sure you want to import contacts?");
+    setOpenImportConfirm(true);
+  };
+
+  const confirmImport = () => {
+    if (importFile) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const fileData = JSON.parse(reader.result);
+        contactData.forEach((item) => {
+          if (item.email == getSessionStorageData("email")) {
+            item.contact = [...item.contact, ...fileData];
+          }
+        });
+        setLocalStorageData(contactData);
+        setContactData(contactData);
+        inputRef.current.value = null;
+        setMessage("Contact imported");
+        setOpen(true);
+      };
+      reader.readAsText(importFile);
+    } else {
+      setMessage("No file selected.");
       setOpen(true);
-    };
-    reader.readAsText(file);
-  }else{
-    inputRef.current.value = "";
-  }
+    }
   };
   const handleCall = (dat) => {
     setUpdateId(dat);
   };
   const handleCancel = (data) => {
     setContactData(data);
-    setUpdateId("");
+    setOpen(true);
+    setMessage("Contact inserted successfully");
   };
   return (
     <>
@@ -99,65 +111,79 @@ export default function Popup() {
           backgroundColor: "skyblue",
         }}
       >
-        <h2 style={{ marginLeft: "10px", color: "white" }}>
-          {" "}
-          Welcome, {name}{" "}
-        </h2>
+        <h2 style={{ marginLeft: "10px", color: "white" }}>Welcome, {name}</h2>
         <button
-          onClick={handleLogout}
+          onClick={() => {
+            setConfirmMessage("Are you sure, You want to Log out?");
+            setOpenConfirm(true);
+          }}
           style={{
             backgroundColor: "lightblue",
             color: "white",
             marginRight: "10px",
           }}
         >
-          Logout
+          Log out
         </button>
+        <ConfirmDialog
+          open={openConfirm}
+          onConfirm={handleLogout}
+          setOpenConfirm={setOpenConfirm}
+          confrimMessage={confrimMessage}
+        />
       </header>
       <div>
         <SnackDemo open={open} set={setOpen} message={message} />
-        <h3 style={{ textAlign: "center", marginTop: "80px" }}>Contact Page</h3>
-
-        <Pop
-          trigger={
-            <button> {updateId ? "Edit Contact" : "Add Contact"} </button>
-          }
-          modal
-          nested
+        <h2 style={{ textAlign: "center", marginTop: "80px" }}>Contact Page</h2>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-around",
+          }}
         >
-          {(close) => (
-            <div className="modal">
-              <ContactForm updateId={updateId} getData={handleCancel} close={close}/>
-              <div>
-                <button
-                  onClick={() => {
-                    close();
-                    removeSessionStorage("updateid");
-                    removeSessionStorage("contact");
-                    setUpdateId("");
-                  }}
-                >
-                  {updateId ? "Edit" : ""} Cancel
-                </button>
+          <Pop trigger={<button>Add Contact </button>} modal nested>
+            {(close) => (
+              <div className="modal">
+                <ContactForm
+                  updateId={updateId}
+                  getData={handleCancel}
+                  close={close}
+                />
+                <div>
+                  <button
+                    onClick={() => {
+                      close();
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-        </Pop>
-        <button onClick={handleExport} style={{ marginLeft: "10px" }}>
-          Export
-        </button>
-        <label htmlFor="import" style={{ marginLeft: "15px" }}>
-          Import Contact :{" "}
-        </label>
-        <input
-          type="file"
-          onChange={handleImport}
-          ref={inputRef}
-          name="import"
-          id="import"
+            )}
+          </Pop>
+          <button onClick={handleExport} style={{ marginLeft: "10px" }}>
+            Export
+          </button>
+          <label htmlFor="import" style={{ marginLeft: "15px" }}>
+            Import Contact :
+          </label>
+          <input
+            type="file"
+            onChange={handleImportWithConfirmation}
+            ref={inputRef}
+            name="import"
+            id="import"
+          />
+        </div>
+        <ContactList sendData={handleCall} contactData={contactData} />
+        <ConfirmDialog
+          open={openImportConfirm}
+          onConfirm={confirmImport}
+          setOpenConfirm={setOpenImportConfirm}
+          confrimMessage={confrimMessage}
         />
-         <ContactList sendData={handleCall} contactData={contactData} />
-
+        {open && <SnackDemo open={open} set={setOpen} message={message} />}
       </div>
     </>
   );

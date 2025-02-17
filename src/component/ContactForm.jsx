@@ -1,16 +1,14 @@
 /* eslint-disable react/prop-types */
 import { useState, useRef } from "react";
 import SnackDemo from "./SnackDemo";
+import { v4 as uuidv4 } from "uuid";
 import "./ContactForm.css";
 import {
   getLocalStorageData,
   getSessionStorageData,
-  removeSessionStorage,
   setLocalStorageData,
 } from "./LocalStorageOperation";
-
-const ContactForm = ({ updateId, getData,close }) => {
-  const contact = JSON.parse(getSessionStorageData("contact"));
+const ContactForm = ({ updateId, contact, close, getData }) => {
   const [name, setName] = useState(contact ? contact.name : "");
   const [email, setEmail] = useState(contact ? contact.email : "");
   const [phoneNumber, setPhoneNumber] = useState(
@@ -18,19 +16,17 @@ const ContactForm = ({ updateId, getData,close }) => {
   );
   const [image, setImage] = useState(contact ? contact.image : "");
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState("");
-  const [editId, seteditId] = useState(updateId);
+  const [editId, seteditId] = useState(
+    updateId ? JSON.stringify(updateId) : null
+  );
+  console.log(editId);
   const [nameError, setNameError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [numberError, setNumberError] = useState("");
   const inputRef = useRef();
-
-  let sessionUpdateId = getSessionStorageData("updateid") || null;
-  console.log(sessionUpdateId)
   const handleRemoveImage = () => {
     setImage("");
   };
-
   const handleImage = (e) => {
     const file = e.target.files[0];
     const reader = new FileReader();
@@ -42,20 +38,19 @@ const ContactForm = ({ updateId, getData,close }) => {
     };
     reader.readAsDataURL(file);
   };
-
   const validateForm = () => {
     let isValid = true;
-
     if (!name.trim()) {
       setNameError("Name is required.");
       isValid = false;
     } else if (!/^[A-Za-z\s]{2,}$/.test(name)) {
-      setNameError("Name should contain only letters and be at least 2 characters long.");
+      setNameError(
+        "Name should contain only letters and have atleast 2 characters long."
+      );
       isValid = false;
     } else {
       setNameError("");
     }
-
     if (!email.trim()) {
       setEmailError("Please enter email address.");
       isValid = false;
@@ -65,7 +60,6 @@ const ContactForm = ({ updateId, getData,close }) => {
     } else {
       setEmailError("");
     }
-
     if (!phoneNumber.trim()) {
       setNumberError("Please enter phone number.");
       isValid = false;
@@ -75,42 +69,18 @@ const ContactForm = ({ updateId, getData,close }) => {
     } else {
       setNumberError("");
     }
-
     return isValid;
   };
 
   const insertContact = (data, sessiondata) => {
     data.forEach((element) => {
       if (element.email === sessiondata) {
-        element.contact.push({ name, email, phoneNumber, image });
-      }
-    });
-    setLocalStorageData(data);
-    setName("");
-    setEmail("");
-    setPhoneNumber("");
-    inputRef.current.value = null;
-    getData(data);
-    setOpen(true);
-    setMessage("Contact added successfully");
-    setTimeout(() => {
-      close();
-    }, 1000);
-  };
-  const updateContact = (data, sessiondata) => {
-    data.forEach((element) => {
-      if (element.email === sessiondata) {
-        element.contact = element.contact.map((item, index) => {
-          if (index == sessionUpdateId) {
-            return {
-              ...item,
-              name: name,
-              email: email,
-              phoneNumber: phoneNumber,
-              image: image,
-            }
-          }
-          return item;
+        element.contact.push({
+          contactid: uuidv4(),
+          name,
+          email,
+          phoneNumber,
+          image,
         });
       }
     });
@@ -118,23 +88,48 @@ const ContactForm = ({ updateId, getData,close }) => {
     setName("");
     setEmail("");
     setPhoneNumber("");
-    removeSessionStorage("updateid");
-    removeSessionStorage("contact");
     inputRef.current.value = null;
     getData(data);
-    setOpen(true);
-    setMessage("Contact updated successfully");
-    setTimeout(() => {
-      close();
-    }, 1000);
-    seteditId("");
+    close();
+  };
+  const updateContact = (data, sessiondata) => {
+    const updatedData = data.map((element) => {
+      if (element.email === sessiondata) {
+        const updatedContact = element.contact.map((item) => {
+          console.log(item.contactid);
+          console.log(editId);
+          if (item.contactid === updateId) {
+            console.log(item.contactid);
+            console.log(editId);
+            return {
+              ...item,
+              name: name,
+              email: email,
+              phoneNumber: phoneNumber,
+              image: image,
+            };
+          }
+          return item;
+        });
+        return { ...element, contact: updatedContact };
+      }
+      return element;
+    });
+    setLocalStorageData(updatedData);
+    setName("");
+    setEmail("");
+    setPhoneNumber("");
+    inputRef.current.value = null;
+    getData(updatedData);
+    close();
+    seteditId(null);
   };
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
       const data = getLocalStorageData();
       let sessiondata = getSessionStorageData("email");
-      if (updateId) {
+      if (editId) {
         updateContact(data, sessiondata);
       } else {
         insertContact(data, sessiondata);
@@ -147,29 +142,44 @@ const ContactForm = ({ updateId, getData,close }) => {
       <form onSubmit={handleSubmit} className="contact-form">
         <div className="input-group">
           <label htmlFor="name">Name</label>
-          <input type="text" name="name" value={name} onChange={(e) => setName(e.target.value)} />
+          <input
+            type="text"
+            name="name"
+            placeholder="Enter name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
           <small className="error">{nameError}</small>
         </div>
-
         <div className="input-group">
           <label htmlFor="email">Email</label>
-          <input type="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input
+            type="email"
+            name="email"
+            placeholder="Enter email address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
           <small className="error">{emailError}</small>
         </div>
-
         <div className="input-group">
           <label htmlFor="phone">Phone Number</label>
-          <input type="tel" name="phone" placeholder="Enter 10-digit number" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+          <input
+            type="tel"
+            name="phone"
+            placeholder="Enter 10-digit number"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+          />
           <small className="error">{numberError}</small>
         </div>
-
         <div className="input-group file-upload">
           <label htmlFor="image">
             <img
               src={
                 image
                   ? `data:image/png;base64,${image}`
-                  : "https://cdn.dribbble.com/userupload/23482189/file/original-4b4341b1c99f00f52c5f4b278d556409.png?resize=400x0"
+                  : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTlz-TKOccaHn9IPHPOBVUJKOxcrSMhc3uhkw&s"
               }
               alt="upload"
               className="upload-icon"
@@ -177,24 +187,29 @@ const ContactForm = ({ updateId, getData,close }) => {
               height="80px"
             />
           </label>
-          <input type="file" id="image" name="image" onChange={handleImage} ref={inputRef} />
-
+          <input
+            type="file"
+            id="image"
+            name="image"
+            onChange={handleImage}
+            ref={inputRef}
+          />
           {image && (
-            <button type="button" className="remove-image-btn" onClick={handleRemoveImage}>
+            <button
+              type="button"
+              className="remove-image-btn"
+              onClick={handleRemoveImage}
+            >
               Remove Image
             </button>
           )}
         </div>
-
         <button type="submit" className="submit-btn">
           {editId ? "Edit Contact" : "Add Contact"}
         </button>
       </form>
-
-      {/* Show Snackbar only on Add or Update */}
-      {open && <SnackDemo open={open} set={setOpen} message={message} />}
+      {open && <SnackDemo open={open} set={setOpen} />}
     </div>
   );
 };
-
 export default ContactForm;
