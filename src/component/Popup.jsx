@@ -4,7 +4,7 @@ import SnackDemo from "./SnackDemo";
 import ContactForm from "./ContactForm";
 import { ContactList } from "./ContactList";
 import { useNavigate } from "react-router-dom";
-import { useState, useRef,useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import ConfirmDialog from "./ConfirmButton";
 import {
   getLocalStorageData,
@@ -29,7 +29,7 @@ export default function Popup() {
   const contactId = searchParams.get("contactid");
   const handleLogout = () => {
     removeSessionStorage("email");
-    removeSessionStorage("authToken");
+    removeSessionStorage("isLoggedIn");
     sessionStorage.setItem("message", "User Logout");
     navigate("/");
   };
@@ -49,7 +49,6 @@ export default function Popup() {
       return item.name;
     }
   });
-
   const handleExport = () => {
     const data = getLocalStorageData();
     const email = getSessionStorageData("email");
@@ -71,13 +70,19 @@ export default function Popup() {
     setMessage("Contacts exported successfully!");
     setOpen(true);
   };
-
   const handleImportWithConfirmation = (e) => {
     setImportFile(e.target.files[0]);
     setConfirmMessage("Are you sure you want to import contacts?");
     setOpenImportConfirm(true);
   };
-
+  const handleMessage = (data) => {
+    setContactData(data);
+    setOpen(true);
+    setMessage("Contact Updated sucessfully");
+  };
+  const confirmCancel = () => {
+    inputRef.current.value = null;
+  };
   const confirmImport = () => {
     if (importFile) {
       const reader = new FileReader();
@@ -155,31 +160,31 @@ export default function Popup() {
           }}
         >
           <Pop open={Boolean(contactId)} modal nested>
-        {(close) => (
-          <div className="modal">
-            <ContactForm
-              updateId={contactId}
-              contact={selectedContact}
-              getData={setContactData}
-              close={() => {
-                setSearchParams("");
-                close();
-              }}
-            />
-            <div>
+            {(close) => (
+              <div className="modal">
+                <ContactForm
+                  updateId={contactId}
+                  contact={selectedContact}
+                  getData={handleMessage}
+                  close={() => {
+                    setSearchParams("");
+                    close();
+                  }}
+                />
+                <div>
                   <button
                     onClick={() => {
                       close();
-                      navigate("/contactform")
+                      navigate("/contactform");
                     }}
                   >
                     Cancel
                   </button>
                 </div>
-          </div>
-        )}
-      </Pop>
-          <Pop trigger={<button>Add Contact </button>}  modal nested>
+              </div>
+            )}
+          </Pop>
+          <Pop trigger={<button>Add Contact </button>} modal nested>
             {(close) => (
               <div className="modal">
                 <ContactForm
@@ -210,7 +215,9 @@ export default function Popup() {
             onChange={handleImportWithConfirmation}
             ref={inputRef}
             name="import"
-            id="import"
+            accept=".json"
+            placeholder="Import file here"
+            style={{cursor:"pointer"}}
           />
         </div>
         <ContactList sendData={handleCall} contactData={contactData} />
@@ -219,6 +226,7 @@ export default function Popup() {
           onConfirm={confirmImport}
           setOpenConfirm={setOpenImportConfirm}
           confrimMessage={confrimMessage}
+          onCancel={confirmCancel}
         />
         {open && <SnackDemo open={open} set={setOpen} message={message} />}
       </div>

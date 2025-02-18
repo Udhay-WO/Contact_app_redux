@@ -17,7 +17,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   getLocalStorageData,
-  setSessionStorageAuthToken,
+  setSessionStorageIsloggedIn,
   setSessionStorageEmail,
 } from "./LocalStorageOperation";
 
@@ -72,7 +72,7 @@ export default function SignIn() {
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
-  const [authunticationMessage, setAuthunticationMessage] = React.useState("");
+  const [authenticationMessage, setAuthenticationMessage] = React.useState("");
 
   const handleEmail = (e) => {
     setEmail(e.target.value);
@@ -118,14 +118,14 @@ export default function SignIn() {
         const decryptedPassword = bytes.toString(CryptoJS.enc.Utf8);
         if (decryptedPassword === password) {
           setSessionStorageEmail(email);
-          setSessionStorageAuthToken();
+          setSessionStorageIsloggedIn();
           sessionStorage.setItem("message", "Login successful");
           navigate("/contactform");
         } else {
-          setAuthunticationMessage("invalid user email address or password");
+          setAuthenticationMessage("invalid user email address or password");
         }
       } else {
-        setAuthunticationMessage("invalid user email address or password");
+        setAuthenticationMessage("invalid user email address or password");
       }
     }
   };
@@ -190,7 +190,7 @@ export default function SignIn() {
                 color={passwordError ? "error" : "primary"}
               />
             </FormControl>
-            <p style={{ color: "red" }}>{authunticationMessage}</p>
+            <p style={{ color: "red" }}>{authenticationMessage}</p>
             <Button
               type="submit"
               fullWidth

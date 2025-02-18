@@ -1,9 +1,7 @@
 /* eslint-disable react/prop-types */
-import Pop from "reactjs-popup";
 import "reactjs-popup/dist/index.css";
 import { useState, useEffect } from "react";
 import SnackDemo from "./SnackDemo";
-import ContactForm from "./ContactForm";
 import { useNavigate } from "react-router-dom";
 import {
   getSessionStorageData,
@@ -21,11 +19,6 @@ export const ContactList = ({ sendData, contactData }) => {
     setContactList(contactData);
   }, [contactData]);
   let sessiondata = getSessionStorageData("email");
-  const handleUpdate = (data) => {
-    setContactList(data);
-    setOpen(true);
-    setMessage("Contact updated successfully");
-  };
   const handleDelete = (index) => {
     const data = contactList.map((item) => {
       if (item.email == sessiondata) {
@@ -99,16 +92,16 @@ export const ContactList = ({ sendData, contactData }) => {
                         {i.email}
                       </td>
                       <td style={{ width: "17rem", padding: "0px 10px" }}>
-                            <button
-                              style={{
-                                fontSize: "0.8rem",
-                                backgroundColor: "skyblue",
-                                marginLeft: "5px",
-                              }}
-                              onClick={()=>navigate(`?contactid=${i.contactid}`)}
-                            >
-                              Edit contact
-                            </button>
+                        <button
+                          style={{
+                            fontSize: "0.8rem",
+                            backgroundColor: "skyblue",
+                            marginLeft: "5px",
+                          }}
+                          onClick={() => navigate(`?contactid=${i.contactid}`)}
+                        >
+                          Edit contact
+                        </button>
                         <button
                           style={{
                             fontSize: "0.8rem",

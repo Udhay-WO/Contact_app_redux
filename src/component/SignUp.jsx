@@ -102,7 +102,7 @@ export default function SignUp() {
     }
     if (!email) {
       setEmailError(true);
-      setEmailErrorMessage("Please enter  email address.");
+      setEmailErrorMessage("email address is required");
       isValid = false;
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       setEmailError(true);
@@ -117,7 +117,7 @@ export default function SignUp() {
     }
     if (!password) {
       setPasswordError(true);
-      setPasswordErrorMessage("Please enter password.");
+      setPasswordErrorMessage("password is required");
       isValid = false;
     } else if (password.length < 6) {
       setPasswordError(true);
@@ -153,7 +153,7 @@ export default function SignUp() {
       setEmail("");
       setPassword("");
       setConfirmPassword("");
-      sessionStorage.setItem("message", "Users registered successfully");
+      sessionStorage.setItem("message", "User registered successfully");
       navigate("/");
     }
   };
@@ -225,11 +225,11 @@ export default function SignUp() {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="confirmpassword">Confirm Password</FormLabel>
+              <FormLabel htmlFor="confirmPassword">Confirm Password</FormLabel>
               <TextField
                 required
                 fullWidth
-                name="confirmpassword"
+                name="confirmPassword"
                 placeholder="••••••"
                 type="password"
                 variant="outlined"

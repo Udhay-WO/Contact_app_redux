@@ -5,7 +5,11 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 
 const ConfirmDialog = (props) => {
-  const { open, onConfirm, index, setOpenConfirm, confrimMessage } = props;
+  const { open, onConfirm, index, setOpenConfirm, confrimMessage,onCancel } = props;
+  const handleCancel = () => {
+    setOpenConfirm(false)
+    onCancel()
+  }
   return (
     <Dialog
       open={open}
@@ -16,7 +20,7 @@ const ConfirmDialog = (props) => {
       <DialogActions>
         <Button
           variant="contained"
-          onClick={() => setOpenConfirm(false)}
+          onClick={handleCancel}
           color="secondary"
         >
           No

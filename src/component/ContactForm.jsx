@@ -22,6 +22,7 @@ const ContactForm = ({ updateId, contact, close, getData }) => {
   const [nameError, setNameError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [numberError, setNumberError] = useState("");
+  const [imageError, setImageError] = useState("");
   const inputRef = useRef();
   useEffect(() => {
     if (contact) {
@@ -36,6 +37,14 @@ const ContactForm = ({ updateId, contact, close, getData }) => {
   };
   const handleImage = (e) => {
     const file = e.target.files[0];
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      setImageError('Invalid file type. Only JPEG, PNG, and GIF are allowed.');
+      e.target.value = '';
+      return;
+    }else{
+      setImageError("")
+    }
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64StringUS = reader.result
@@ -194,8 +203,10 @@ const ContactForm = ({ updateId, contact, close, getData }) => {
             id="image"
             name="image"
             onChange={handleImage}
+            accept="image/*"
             ref={inputRef}
           />
+          <small className="error">{imageError}</small>
           {image && (
             <button
               type="button"

@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import SignUp from "./component/SignUp";
 import Popup from "./component/Popup";
 import { PrivateRoute, ProtectedRoute } from "./component/Route";
+import PageNotFound from "./component/PageNotFound";
 function App() {
   return (
     <>
@@ -26,6 +27,7 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route path="*" element={<PageNotFound/>} />
         </Routes>
       </BrowserRouter>
     </>
