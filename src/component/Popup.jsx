@@ -16,17 +16,16 @@ import { useSearchParams } from "react-router-dom";
 export default function Popup() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
-  const [updateId, setUpdateId] = useState(null);
   const [message, setMessage] = useState(sessionStorage.getItem("message"));
-  const [contactData, setContactData] = useState(getLocalStorageData());
+  const [contactData] = useState(getLocalStorageData());
   const inputRef = useRef();
   const [openConfirm, setOpenConfirm] = useState(false);
-  const [confrimMessage, setConfirmMessage] = useState("");
+  const [confirmMessage, setConfirmMessage] = useState("");
   const [openImportConfirm, setOpenImportConfirm] = useState(false);
   const [importFile, setImportFile] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedContact, setSelectedContact] = useState(null);
-  const contactId = searchParams.get("contactid");
+  const contactId = searchParams.get("contactId");
   const handleLogout = () => {
     removeSessionStorage("email");
     removeSessionStorage("isLoggedIn");
@@ -39,7 +38,7 @@ export default function Popup() {
       const email = getSessionStorageData("email");
       const user = data.find((item) => item.email === email);
       if (user) {
-        const contact = user.contact.find((c) => c.contactid === contactId);
+        const contact = user.contact.find((c) => c.contactId === contactId);
         setSelectedContact(contact || null);
       }
     }
@@ -75,10 +74,9 @@ export default function Popup() {
     setConfirmMessage("Are you sure you want to import contacts?");
     setOpenImportConfirm(true);
   };
-  const handleMessage = (data) => {
-    setContactData(data);
+  const handleUpdateMessage = () => {
     setOpen(true);
-    setMessage("Contact Updated sucessfully");
+    setMessage("Contact Updated successFully");
   };
   const confirmCancel = () => {
     inputRef.current.value = null;
@@ -94,7 +92,6 @@ export default function Popup() {
           }
         });
         setLocalStorageData(contactData);
-        setContactData(contactData);
         inputRef.current.value = null;
         setMessage("Contact imported");
         setOpen(true);
@@ -105,11 +102,7 @@ export default function Popup() {
       setOpen(true);
     }
   };
-  const handleCall = (dat) => {
-    setUpdateId(dat);
-  };
-  const handleCancel = (data) => {
-    setContactData(data);
+  const handleInsertMessage = () => {
     setOpen(true);
     setMessage("Contact inserted successfully");
   };
@@ -146,7 +139,7 @@ export default function Popup() {
           open={openConfirm}
           onConfirm={handleLogout}
           setOpenConfirm={setOpenConfirm}
-          confrimMessage={confrimMessage}
+          confirmMessage={confirmMessage}
         />
       </header>
       <div>
@@ -165,7 +158,7 @@ export default function Popup() {
                 <ContactForm
                   updateId={contactId}
                   contact={selectedContact}
-                  getData={handleMessage}
+                  getData={handleUpdateMessage}
                   close={() => {
                     setSearchParams("");
                     close();
@@ -187,11 +180,7 @@ export default function Popup() {
           <Pop trigger={<button>Add Contact </button>} modal nested>
             {(close) => (
               <div className="modal">
-                <ContactForm
-                  updateId={updateId}
-                  getData={handleCancel}
-                  close={close}
-                />
+                <ContactForm getData={handleInsertMessage} close={close} />
                 <div>
                   <button
                     onClick={() => {
@@ -217,15 +206,15 @@ export default function Popup() {
             name="import"
             accept=".json"
             placeholder="Import file here"
-            style={{cursor:"pointer"}}
+            style={{ cursor: "pointer" }}
           />
         </div>
-        <ContactList sendData={handleCall} contactData={contactData} />
+        <ContactList />
         <ConfirmDialog
           open={openImportConfirm}
           onConfirm={confirmImport}
           setOpenConfirm={setOpenImportConfirm}
-          confrimMessage={confrimMessage}
+          confirmMessage={confirmMessage}
           onCancel={confirmCancel}
         />
         {open && <SnackDemo open={open} set={setOpen} message={message} />}

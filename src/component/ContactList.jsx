@@ -1,47 +1,32 @@
-/* eslint-disable react/prop-types */
 import "reactjs-popup/dist/index.css";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import SnackDemo from "./SnackDemo";
 import { useNavigate } from "react-router-dom";
-import {
-  getSessionStorageData,
-  setLocalStorageData,
-} from "./LocalStorageOperation";
+import { deleteContact } from "../Store/Slice/ContactSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { getSessionStorageData } from "./LocalStorageOperation";
 import ConfirmDialog from "./ConfirmButton";
-export const ContactList = ({ sendData, contactData }) => {
+export const ContactList = () => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [openConfirm, setOpenConfirm] = useState(false);
-  const [confrimMessage, setConfirmMessage] = useState("");
-  const [contactList, setContactList] = useState(contactData);
+  const [confirmMessage, setConfirmMessage] = useState("");
+  const dispatch = useDispatch();
+  const displayContactList = useSelector((state) => {
+    return state.contactList;
+  });
   const navigate = useNavigate();
-  useEffect(() => {
-    setContactList(contactData);
-  }, [contactData]);
   let sessiondata = getSessionStorageData("email");
-  const handleDelete = (index) => {
-    const data = contactList.map((item) => {
-      if (item.email == sessiondata) {
-        const updateContacts = item.contact.filter(
-          (i) => i.contactid !== index
-        );
-        return { ...item, contact: updateContacts };
-      }
-      return item;
-    });
-    setLocalStorageData([...data]);
-    setContactList([...data]);
+  const handleDelete = (id) => {
+    dispatch(deleteContact(id));
     setOpen(true);
     setMessage("Contact deleted");
-    sendData("");
   };
   return (
     <div>
       <h3 style={{ textAlign: "center" }}>Contact list</h3>
-      {contactData.some(
-        (item) =>
-          item.email === getSessionStorageData("email") &&
-          item.contact.length > 0
+      {displayContactList.some(
+        (item) => item.email === sessiondata && item.contact.length > 0
       ) ? (
         <table border="1px">
           <thead>
@@ -54,7 +39,7 @@ export const ContactList = ({ sendData, contactData }) => {
             </tr>
           </thead>
           <tbody>
-            {contactList.map((item) => {
+            {displayContactList.map((item) => {
               if (item.email == sessiondata) {
                 return item.contact.map((i, index) => {
                   return (
@@ -98,7 +83,7 @@ export const ContactList = ({ sendData, contactData }) => {
                             backgroundColor: "skyblue",
                             marginLeft: "5px",
                           }}
-                          onClick={() => navigate(`?contactid=${i.contactid}`)}
+                          onClick={() => navigate(`?contactId=${i.contactId}`)}
                         >
                           Edit contact
                         </button>
@@ -120,9 +105,9 @@ export const ContactList = ({ sendData, contactData }) => {
                         <ConfirmDialog
                           open={openConfirm}
                           onConfirm={handleDelete}
-                          index={i.contactid}
+                          index={i.contactId}
                           setOpenConfirm={setOpenConfirm}
-                          confrimMessage={confrimMessage}
+                          confirmMessage={confirmMessage}
                         />
                       </td>
                     </tr>

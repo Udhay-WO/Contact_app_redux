@@ -5,24 +5,19 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 
 const ConfirmDialog = (props) => {
-  const { open, onConfirm, index, setOpenConfirm, confrimMessage,onCancel } = props;
+  const { open, onConfirm, index, setOpenConfirm, confirmMessage } = props;
   const handleCancel = () => {
-    setOpenConfirm(false)
-    onCancel()
-  }
+    setOpenConfirm(false);
+  };
   return (
     <Dialog
       open={open}
       onClose={() => setOpenConfirm(false)}
       aria-labelledby="confirm-dialog"
     >
-      <DialogTitle id="confirm-dialog">{confrimMessage}</DialogTitle>
+      <DialogTitle id="confirm-dialog">{confirmMessage}</DialogTitle>
       <DialogActions>
-        <Button
-          variant="contained"
-          onClick={handleCancel}
-          color="secondary"
-        >
+        <Button variant="contained" onClick={handleCancel} color="secondary">
           No
         </Button>
         <Button
