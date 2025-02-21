@@ -127,7 +127,14 @@ export default function SignUp() {
       setPasswordError(false);
       setPasswordErrorMessage("");
     }
-
+    if (!confirmPassword) {
+      setConfirmError(true);
+      setConfirmErrorMessage("confirm password is required");
+      isValid = false;
+    } else {
+      setConfirmError(false);
+      setConfirmErrorMessage("");
+    }
     if (password !== confirmPassword) {
       setConfirmError(true);
       setConfirmErrorMessage("password and confirm password does not match");

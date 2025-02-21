@@ -44,7 +44,6 @@ const contactSlice = createSlice({
         }
         return element;
       });
-
       setLocalStorageData(contactData);
     },
   },

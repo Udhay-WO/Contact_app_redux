@@ -7,7 +7,7 @@ export const setLocalStorageData = (data) => {
 export const setSessionStorageEmail = (email) => {
   return sessionStorage.setItem("email", email);
 };
-export const setSessionStorageIsloggedIn = () => {
+export const setSessionStorageIsLoggedIn = () => {
   return sessionStorage.setItem("isLoggedIn", true);
 };
 export const removeSessionStorage = (removeItem) => {

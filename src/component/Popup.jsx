@@ -58,12 +58,12 @@ export default function Popup() {
       return;
     }
     const blob = new Blob([JSON.stringify(user.contact, null, 2)], {
-      type: "application/json",
+      type: "text/csv",
     });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "contacts.json";
+    a.download = "contacts.csv";
     a.click();
     URL.revokeObjectURL(url);
     setMessage("Contacts exported successfully!");
@@ -204,7 +204,7 @@ export default function Popup() {
             onChange={handleImportWithConfirmation}
             ref={inputRef}
             name="import"
-            accept=".json"
+            accept=".csv"
             placeholder="Import file here"
             style={{ cursor: "pointer" }}
           />

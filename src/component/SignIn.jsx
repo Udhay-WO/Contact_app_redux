@@ -17,7 +17,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   getLocalStorageData,
-  setSessionStorageIsloggedIn,
+  setSessionStorageIsLoggedIn,
   setSessionStorageEmail,
 } from "./LocalStorageOperation";
 
@@ -29,16 +29,17 @@ const Card = styled(MuiCard)(({ theme }) => ({
   padding: theme.spacing(4),
   gap: theme.spacing(2),
   margin: "auto",
-  [theme.breakpoints.up("sm")]: {
-    maxWidth: "450px",
-  },
   boxShadow:
     "hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px",
+  [theme.breakpoints.up("sm")]: {
+    width: "450px",
+  },
   ...theme.applyStyles("dark", {
     boxShadow:
       "hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px",
   }),
 }));
+
 const SignInContainer = styled(Stack)(({ theme }) => ({
   height: "calc((1 - var(--template-frame-height, 0)) * 100dvh)",
   minHeight: "100%",
@@ -107,18 +108,16 @@ export default function SignIn() {
       setPasswordError(false);
       setPasswordErrorMessage("");
     }
-
     if (isValid) {
       const data = getLocalStorageData();
       const validEmail = data.find((item) => item.email === email);
-
       if (validEmail) {
         const secretKey = "my-secret-key";
         const bytes = CryptoJS.AES.decrypt(validEmail.password, secretKey);
         const decryptedPassword = bytes.toString(CryptoJS.enc.Utf8);
         if (decryptedPassword === password) {
           setSessionStorageEmail(email);
-          setSessionStorageIsloggedIn();
+          setSessionStorageIsLoggedIn();
           sessionStorage.setItem("message", "Login successful");
           navigate("/contactform");
         } else {
@@ -204,7 +203,7 @@ export default function SignIn() {
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Typography sx={{ textAlign: "center" }}>
               Don&apos;t have an account?
-              <NavLink to="/signup">Sign up</NavLink>
+              <NavLink to="/signup"> Sign up</NavLink>
             </Typography>
           </Box>
         </Card>
