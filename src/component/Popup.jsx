@@ -5,7 +5,10 @@ import ContactForm from "./ContactForm";
 import { ContactList } from "./ContactList";
 import { useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
+import { updateContactList } from "../Store/Slice/ContactSlice";
 import ConfirmDialog from "./ConfirmButton";
+import Papa from "papaparse";
+import * as XLSX from "xlsx";
 import {
   getLocalStorageData,
   getSessionStorageData,
@@ -13,6 +16,7 @@ import {
   setLocalStorageData,
 } from "./LocalStorageOperation";
 import { useSearchParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
 export default function Popup() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
@@ -26,6 +30,7 @@ export default function Popup() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedContact, setSelectedContact] = useState(null);
   const contactId = searchParams.get("contactId");
+  const dispatch = useDispatch();
   const handleLogout = () => {
     removeSessionStorage("email");
     removeSessionStorage("isLoggedIn");
@@ -48,27 +53,31 @@ export default function Popup() {
       return item.name;
     }
   });
-  const handleExport = () => {
-    const data = getLocalStorageData();
-    const email = getSessionStorageData("email");
-    const user = data.find((item) => item.email === email);
-    if (!user || !user.contact.length) {
-      setMessage("No contacts to export!");
-      setOpen(true);
-      return;
-    }
-    const blob = new Blob([JSON.stringify(user.contact, null, 2)], {
-      type: "text/csv",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "contacts.csv";
-    a.click();
-    URL.revokeObjectURL(url);
-    setMessage("Contacts exported successfully!");
+
+const handleExport = () => {
+  const data = getLocalStorageData();
+  const email = getSessionStorageData("email");
+  const user = data.find((item) => item.email === email);
+  if (!user || !user.contact.length) {
+    setMessage("No contacts to export!");
     setOpen(true);
-  };
+    return;
+  }
+  const worksheet = XLSX.utils.json_to_sheet(user.contact);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Contacts");
+  const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+  const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "contacts.xlsx";
+  a.click();
+  URL.revokeObjectURL(url);
+  setMessage("Contacts exported successfully!");
+  setOpen(true);
+};
+
   const handleImportWithConfirmation = (e) => {
     setImportFile(e.target.files[0]);
     setConfirmMessage("Are you sure you want to import contacts?");
@@ -84,19 +93,29 @@ export default function Popup() {
   const confirmImport = () => {
     if (importFile) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        const fileData = JSON.parse(reader.result);
-        contactData.forEach((item) => {
-          if (item.email == getSessionStorageData("email")) {
-            item.contact = [...item.contact, ...fileData];
+      reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const fileData = XLSX.utils.sheet_to_json(worksheet); 
+        const contactData = getLocalStorageData();
+        const email = getSessionStorageData("email");
+        contactData.forEach((user) => {
+          if (user.email === email) {
+            user.contact = [...user.contact, ...fileData];
           }
         });
-        setLocalStorageData(contactData);
+        dispatch(updateContactList(contactData));
         inputRef.current.value = null;
-        setMessage("Contact imported");
+        setMessage("Contacts imported successfully!");
         setOpen(true);
       };
-      reader.readAsText(importFile);
+      reader.onerror = () => {
+        setMessage("Error reading Excel file.");
+        setOpen(true);
+      };
+      reader.readAsArrayBuffer(importFile);
     } else {
       setMessage("No file selected.");
       setOpen(true);
@@ -204,7 +223,7 @@ export default function Popup() {
             onChange={handleImportWithConfirmation}
             ref={inputRef}
             name="import"
-            accept=".csv"
+            accept=".xlsx"
             placeholder="Import file here"
             style={{ cursor: "pointer" }}
           />

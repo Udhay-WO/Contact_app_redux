@@ -33,6 +33,39 @@ const ContactForm = ({ updateId, contact, close, getData }) => {
   const handleRemoveImage = () => {
     setImage("");
   };
+  const handleNameChange = (e) => {
+    const value = e.target.value;
+    setName(value);
+    if (!value.trim()) {
+      setNameError("Name is required.");
+    } else if (!/^[A-Za-z\s]{2,}$/.test(value)) {
+      setNameError("Name should contain only letters and be at least 2 characters long.");
+    } else {
+      setNameError("");
+    }
+  };
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setEmail(value);
+    if (!value.trim()) {
+      setEmailError("Please enter an email address.");
+    } else if (!/\S+@\S+\.\S+/.test(value)) {
+      setEmailError("Please enter a valid email address.");
+    } else {
+      setEmailError("");
+    }
+  };
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    setPhoneNumber(value);
+    if (!value.trim()) {
+      setNumberError("Please enter a phone number.");
+    } else if (!/^\d{10}$/.test(value)) {
+      setNumberError("Phone number must contain only digit and exactly 10 digits long.");
+    } else {
+      setNumberError("");
+    }
+  };
   const handleImage = (e) => {
     const file = e.target.files[0];
     const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
@@ -52,6 +85,7 @@ const ContactForm = ({ updateId, contact, close, getData }) => {
     };
     reader.readAsDataURL(file);
   };
+
   const validateForm = () => {
     let isValid = true;
     if (!name.trim()) {
@@ -133,7 +167,7 @@ const ContactForm = ({ updateId, contact, close, getData }) => {
             name="name"
             placeholder="Enter name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={handleNameChange}
           />
           <small className="error">{nameError}</small>
         </div>
@@ -144,7 +178,7 @@ const ContactForm = ({ updateId, contact, close, getData }) => {
             name="email"
             placeholder="Enter email address"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={handleEmailChange}
           />
           <small className="error">{emailError}</small>
         </div>
@@ -155,7 +189,7 @@ const ContactForm = ({ updateId, contact, close, getData }) => {
             name="phone"
             placeholder="Enter 10-digit number"
             value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
+            onChange={handlePhoneChange}
           />
           <small className="error">{numberError}</small>
         </div>

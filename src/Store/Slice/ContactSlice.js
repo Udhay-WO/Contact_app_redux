@@ -4,9 +4,7 @@ import {
   getSessionStorageData,
   setLocalStorageData,
 } from "../../component/LocalStorageOperation";
-
 let sessiondata = getSessionStorageData("email");
-
 const contactSlice = createSlice({
   name: "contactList",
   initialState: getLocalStorageData(),
@@ -46,9 +44,13 @@ const contactSlice = createSlice({
       });
       setLocalStorageData(contactData);
     },
+    updateContactList: (state, action) => {
+      setLocalStorageData(action.payload);
+      return action.payload; 
+    },
   },
 });
 
 export default contactSlice;
-export const { addContact, updateContact, deleteContact } =
+export const { addContact, updateContact, deleteContact,updateContactList } =
   contactSlice.actions;

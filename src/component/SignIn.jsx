@@ -68,12 +68,11 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
-  const message = sessionStorage.getItem("message");
-  const [emailError, setEmailError] = React.useState(false);
+    const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
-  const [authenticationMessage, setAuthenticationMessage] = React.useState("");
+  const [authenticationMessage, setAuthenticationMessage] = React.useState(sessionStorage.getItem("message"));
 
   const handleEmail = (e) => {
     setEmail(e.target.value);
@@ -121,10 +120,14 @@ export default function SignIn() {
           sessionStorage.setItem("message", "Login successful");
           navigate("/contactform");
         } else {
+          setOpen(true)
           setAuthenticationMessage("invalid user email address or password");
+    
         }
       } else {
+        setOpen(true)
         setAuthenticationMessage("invalid user email address or password");
+      
       }
     }
   };
@@ -189,7 +192,6 @@ export default function SignIn() {
                 color={passwordError ? "error" : "primary"}
               />
             </FormControl>
-            <p style={{ color: "red" }}>{authenticationMessage}</p>
             <Button
               type="submit"
               fullWidth
@@ -208,7 +210,7 @@ export default function SignIn() {
           </Box>
         </Card>
       </SignInContainer>
-      <SnackDemo open={open} set={setOpen} message={message} />
+      <SnackDemo open={open} set={setOpen} message={authenticationMessage} />
     </>
   );
 }

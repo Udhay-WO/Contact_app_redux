@@ -76,16 +76,63 @@ export default function SignUp() {
   const [nameErrorMessage, setNameErrorMessage] = React.useState("");
 
   const handleName = (e) => {
-    setName(e.target.value);
+    const value = e.target.value;
+    setName(value);
+    if (!value || value.length < 1) {
+      setNameError(true);
+      setNameErrorMessage("Name is required.");
+    } else {
+      setNameError(false);
+      setNameErrorMessage("");
+    }
   };
   const handleEmail = (e) => {
-    setEmail(e.target.value);
+    const value = e.target.value;
+    setEmail(value);
+    let userData = getLocalStorageData() || [];
+    let checkEmail = userData.some((item) => item.email === value);
+  
+    if (!value) {
+      setEmailError(true);
+      setEmailErrorMessage("Email address is required.");
+    } else if (!/\S+@\S+\.\S+/.test(value)) {
+      setEmailError(true);
+      setEmailErrorMessage("Please enter a valid email address.");
+    } else if (checkEmail) {
+      setEmailError(true);
+      setEmailErrorMessage("User already exists.");
+    } else {
+      setEmailError(false);
+      setEmailErrorMessage("");
+    }
   };
   const handlePassword = (e) => {
-    setPassword(e.target.value);
+    const value = e.target.value;
+    setPassword(value);
+    if (!value) {
+      setPasswordError(true);
+      setPasswordErrorMessage("Password is required.");
+    } else if (value.length < 6) {
+      setPasswordError(true);
+      setPasswordErrorMessage("Password must be at least 6 characters long.");
+    } else {
+      setPasswordError(false);
+      setPasswordErrorMessage("");
+    }
   };
   const handleConfirmPassword = (e) => {
-    setConfirmPassword(e.target.value);
+    const value = e.target.value;
+    setConfirmPassword(value);
+    if (!value) {
+      setConfirmError(true);
+      setConfirmErrorMessage("Confirm password is required.");
+    } else if (value !== password) {
+      setConfirmError(true);
+      setConfirmErrorMessage("Passwords do not match.");
+    } else {
+      setConfirmError(false);
+      setConfirmErrorMessage("");
+    }
   };
   const validateInputs = (e) => {
     e.preventDefault();
