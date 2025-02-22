@@ -7,13 +7,12 @@ import { useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { updateContactList } from "../Store/Slice/ContactSlice";
 import ConfirmDialog from "./ConfirmButton";
-import Papa from "papaparse";
 import * as XLSX from "xlsx";
+
 import {
   getLocalStorageData,
   getSessionStorageData,
   removeSessionStorage,
-  setLocalStorageData,
 } from "./LocalStorageOperation";
 import { useSearchParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -53,33 +52,51 @@ export default function Popup() {
       return item.name;
     }
   });
-
-const handleExport = () => {
-  const data = getLocalStorageData();
-  const email = getSessionStorageData("email");
-  const user = data.find((item) => item.email === email);
-  if (!user || !user.contact.length) {
-    setMessage("No contacts to export!");
+  const handleExport = () => {
+    const data = getLocalStorageData();
+    const email = getSessionStorageData("email");
+    const user = data.find((item) => item.email === email);
+    if (!user || !user.contact.length) {
+      setMessage("No contacts to export!");
+      setOpen(true);
+      return;
+    }
+    const worksheet = XLSX.utils.json_to_sheet(user.contact);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Contacts");
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "contacts.xlsx";
+    a.click();
+    URL.revokeObjectURL(url);
+    setMessage("Contacts exported successfully!");
     setOpen(true);
-    return;
-  }
-  const worksheet = XLSX.utils.json_to_sheet(user.contact);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Contacts");
-  const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-  const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "contacts.xlsx";
-  a.click();
-  URL.revokeObjectURL(url);
-  setMessage("Contacts exported successfully!");
-  setOpen(true);
-};
-
+  };
   const handleImportWithConfirmation = (e) => {
-    setImportFile(e.target.files[0]);
+    const file = e.target.files[0];
+    setImportFile(file);
+    const allowedTypes = [
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      setImportFile("");
+      inputRef.current.value = null;
+      setMessage(
+        "You're trying to open a file with an unrecognized file type."
+      );
+      setOpen(true);
+      return;
+    } else {
+      setOpen(false);
+    }
     setConfirmMessage("Are you sure you want to import contacts?");
     setOpenImportConfirm(true);
   };
@@ -98,7 +115,7 @@ const handleExport = () => {
         const workbook = XLSX.read(data, { type: "array" });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
-        const fileData = XLSX.utils.sheet_to_json(worksheet); 
+        const fileData = XLSX.utils.sheet_to_json(worksheet);
         const contactData = getLocalStorageData();
         const email = getSessionStorageData("email");
         contactData.forEach((user) => {
@@ -159,6 +176,7 @@ const handleExport = () => {
           onConfirm={handleLogout}
           setOpenConfirm={setOpenConfirm}
           confirmMessage={confirmMessage}
+          onCancel={confirmCancel}
         />
       </header>
       <div>
@@ -216,7 +234,7 @@ const handleExport = () => {
             Export
           </button>
           <label htmlFor="import" style={{ marginLeft: "15px" }}>
-            Import Contact :
+            Import Contact : &nbsp;
           </label>
           <input
             type="file"

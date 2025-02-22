@@ -5,8 +5,9 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 
 const ConfirmDialog = (props) => {
-  const { open, onConfirm, index, setOpenConfirm, confirmMessage } = props;
+  const { open, onConfirm, index, setOpenConfirm, confirmMessage,onCancel } = props;
   const handleCancel = () => {
+    onCancel()
     setOpenConfirm(false);
   };
   return (

@@ -13,7 +13,7 @@ import { styled } from "@mui/material/styles";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidV4 } from "uuid";
 import {
   getLocalStorageData,
   setLocalStorageData,
@@ -128,7 +128,7 @@ export default function SignUp() {
       setConfirmErrorMessage("Confirm password is required.");
     } else if (value !== password) {
       setConfirmError(true);
-      setConfirmErrorMessage("Passwords do not match.");
+      setConfirmErrorMessage("password and confirm password does not match");
     } else {
       setConfirmError(false);
       setConfirmErrorMessage("");
@@ -194,7 +194,7 @@ export default function SignUp() {
     const cipherText = CryptoJS.AES.encrypt(password, secretKey).toString();
     if (isValid) {
       const data = {
-        id: uuidv4(),
+        id: uuidV4(),
         name,
         email,
         password: cipherText,

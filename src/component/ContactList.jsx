@@ -19,13 +19,14 @@ export const ContactList = () => {
   let sessiondata = getSessionStorageData("email");
   const handleDelete = (id) => {
     dispatch(deleteContact(id));
+    navigate("/contactform")
     setOpen(true);
     setMessage("Contact deleted");
   };
   return (
     <div>
       <h3 style={{ textAlign: "center" }}>Contact list</h3>
-      {displayContactList.some(
+      {displayContactList && displayContactList.some(
         (item) => item.email === sessiondata && item.contact.length > 0
       ) ? (
         <table border="1px">

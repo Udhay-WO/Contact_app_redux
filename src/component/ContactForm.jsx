@@ -39,7 +39,9 @@ const ContactForm = ({ updateId, contact, close, getData }) => {
     if (!value.trim()) {
       setNameError("Name is required.");
     } else if (!/^[A-Za-z\s]{2,}$/.test(value)) {
-      setNameError("Name should contain only letters and be at least 2 characters long.");
+      setNameError(
+        "Name should contain only letters and be at least 2 characters long."
+      );
     } else {
       setNameError("");
     }
@@ -61,7 +63,9 @@ const ContactForm = ({ updateId, contact, close, getData }) => {
     if (!value.trim()) {
       setNumberError("Please enter a phone number.");
     } else if (!/^\d{10}$/.test(value)) {
-      setNumberError("Phone number must contain only digit and exactly 10 digits long.");
+      setNumberError(
+        "Phone number must contain only digit and exactly 10 digits long."
+      );
     } else {
       setNumberError("");
     }
@@ -112,7 +116,9 @@ const ContactForm = ({ updateId, contact, close, getData }) => {
       setNumberError("Please enter phone number.");
       isValid = false;
     } else if (!/^\d{10}$/.test(phoneNumber)) {
-      setNumberError("Phone number must be exactly 10 digits.");
+      setNumberError(
+        "Phone number must contain only digit and exactly 10 digits long."
+      );
       isValid = false;
     } else {
       setNumberError("");

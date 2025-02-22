@@ -10,11 +10,13 @@ const contactSlice = createSlice({
   initialState: getLocalStorageData(),
   reducers: {
     addContact(state, action) {
-      const user = state.find((element) => element.email === sessiondata);
-      if (user) {
-        user.contact.push(action.payload);
-        setLocalStorageData(state);
-      }
+      state.forEach((element)=>{
+        if(element.email === sessiondata){
+          element.contact.push(action.payload)
+        }
+        return element;
+      })
+      setLocalStorageData(state)
     },
     updateContact(state, action) {
       const contactData = state.map((element) => {
