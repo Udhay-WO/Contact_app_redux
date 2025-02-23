@@ -47,6 +47,7 @@ export default function Popup() {
       }
     }
   }, [contactId]);
+  
   const name = contactData.map((item) => {
     if (item.email == getSessionStorageData("email")) {
       return item.name;

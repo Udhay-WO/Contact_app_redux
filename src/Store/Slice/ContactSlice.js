@@ -4,14 +4,17 @@ import {
   getSessionStorageData,
   setLocalStorageData,
 } from "../../component/LocalStorageOperation";
-let sessiondata = getSessionStorageData("email");
+
 const contactSlice = createSlice({
   name: "contactList",
   initialState: getLocalStorageData(),
   reducers: {
     addContact(state, action) {
+      let sessiondata = getSessionStorageData("email");
       const updatedState = state.map((element) => {
         if (element.email === sessiondata) {
+          console.log(sessiondata)
+          console.log(element.email)
           return {
             ...element,
             contact: [...element.contact, action.payload], 
@@ -25,6 +28,7 @@ const contactSlice = createSlice({
     },
     updateContact(state, action) {
       const contactData = state.map((element) => {
+        let sessiondata = getSessionStorageData("email");
         if (element.email === sessiondata) {
           element.contact = element.contact.map((item) => {
             if (item.contactId === action.payload.id) {
@@ -42,6 +46,7 @@ const contactSlice = createSlice({
     },
     deleteContact(state, action) {
       const contactData = state.map((element) => {
+        let sessiondata = getSessionStorageData("email");
         if (element.email === sessiondata) {
           element.contact = element.contact.filter(
             (item) => item.contactId !== action.payload

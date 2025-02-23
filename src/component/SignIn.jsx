@@ -15,6 +15,8 @@ import { styled } from "@mui/material/styles";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { updateContactList } from "../Store/Slice/ContactSlice";
 import {
   getLocalStorageData,
   setSessionStorageIsLoggedIn,
@@ -67,6 +69,7 @@ export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  
   const [open, setOpen] = useState(true);
     const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
@@ -81,7 +84,7 @@ export default function SignIn() {
   const handlePassword = (e) => {
     setPassword(e.target.value);
   };
-
+  const dispatch = useDispatch();
   const validateInputs = async (e) => {
     e.preventDefault();
     let isValid = true;
@@ -118,6 +121,8 @@ export default function SignIn() {
           setSessionStorageEmail(email);
           setSessionStorageIsLoggedIn();
           sessionStorage.setItem("message", "Login successful");
+          const contactData = getLocalStorageData();
+          dispatch(updateContactList(contactData))
           navigate("/contactform");
         } else {
           setOpen(true)
