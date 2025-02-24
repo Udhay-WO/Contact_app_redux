@@ -1,6 +1,7 @@
 import "reactjs-popup/dist/index.css";
 import { useState } from "react";
 import SnackDemo from "./SnackDemo";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { deleteContact } from "../Store/Slice/ContactSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,7 +17,7 @@ export const ContactList = () => {
     return state.contactList;
   });
   const navigate = useNavigate();
-  let sessiondata = getSessionStorageData("email");
+  const sessiondata = useMemo(() => getSessionStorageData("email"), []);
   const handleDelete = (id) => {
     dispatch(deleteContact(id));
     navigate("/contactform")

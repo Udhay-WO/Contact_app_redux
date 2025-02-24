@@ -5,6 +5,7 @@ import { v4 as uuidV4 } from "uuid";
 import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import * as Yup from "yup";
+import { useMemo } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { addContact, updateContact } from "../Store/Slice/ContactSlice";
 import "./ContactForm.css";
@@ -30,7 +31,7 @@ const ContactForm = ({ updateId, contact, close, getData }) => {
   const inputRef = useRef();
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
-  const [editId] = useState(updateId ? JSON.stringify(updateId) : null);
+  const editId = useMemo(() => (updateId ? JSON.stringify(updateId) : null), [updateId]);
   const {
     register,
     handleSubmit,
