@@ -1,5 +1,5 @@
 export const getLocalStorageData = () => {
-  return JSON.parse(localStorage.getItem("users"));
+  return JSON.parse(localStorage.getItem("users") );
 };
 export const setLocalStorageData = (data) => {
   return localStorage.setItem("users", JSON.stringify(data));

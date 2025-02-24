@@ -47,7 +47,6 @@ export default function Popup() {
       }
     }
   }, [contactId]);
-  
   const name = contactData.map((item) => {
     if (item.email == getSessionStorageData("email")) {
       return item.name;
@@ -95,8 +94,6 @@ export default function Popup() {
       );
       setOpen(true);
       return;
-    } else {
-      setOpen(false);
     }
     setConfirmMessage("Are you sure you want to import contacts?");
     setOpenImportConfirm(true);
@@ -190,7 +187,7 @@ export default function Popup() {
             justifyContent: "space-around",
           }}
         >
-          <Pop open={Boolean(contactId)} modal nested>
+          <Pop  open={Boolean(contactId)} modal nested>
             {(close) => (
               <div className="modal">
                 <ContactForm

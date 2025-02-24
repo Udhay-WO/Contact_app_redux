@@ -29,11 +29,14 @@ input {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 5px;
+  margin-bottom: 15px;
 }
 .error {
   color: red;
   font-size: 0.8rem;
   margin-top: 3px; 
+  position: absolute;
+  margin-top: 65px;
 }
 .file-upload {
   text-align: center;

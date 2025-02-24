@@ -69,18 +69,17 @@ export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  
   const [open, setOpen] = useState(true);
-    const [emailError, setEmailError] = React.useState(false);
+  const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
-  const [authenticationMessage, setAuthenticationMessage] = React.useState(sessionStorage.getItem("message"));
-
+  const [authenticationMessage, setAuthenticationMessage] = React.useState(
+    sessionStorage.getItem("message")
+  );
   const handleEmail = (e) => {
     setEmail(e.target.value);
   };
-
   const handlePassword = (e) => {
     setPassword(e.target.value);
   };
@@ -88,7 +87,6 @@ export default function SignIn() {
   const validateInputs = async (e) => {
     e.preventDefault();
     let isValid = true;
-
     if (!email) {
       setEmailError(true);
       setEmailErrorMessage("Please enter email address.");
@@ -101,7 +99,6 @@ export default function SignIn() {
       setEmailError(false);
       setEmailErrorMessage("");
     }
-
     if (!password || password.length < 6) {
       setPasswordError(true);
       setPasswordErrorMessage("Password must be at least 6 characters long.");
@@ -112,7 +109,7 @@ export default function SignIn() {
     }
     if (isValid) {
       const data = getLocalStorageData();
-      const validEmail = data.find((item) => item.email === email);
+      const validEmail = data?.find((item) => item.email === email);
       if (validEmail) {
         const secretKey = "my-secret-key";
         const bytes = CryptoJS.AES.decrypt(validEmail.password, secretKey);
@@ -122,17 +119,15 @@ export default function SignIn() {
           setSessionStorageIsLoggedIn();
           sessionStorage.setItem("message", "Login successful");
           const contactData = getLocalStorageData();
-          dispatch(updateContactList(contactData))
+          dispatch(updateContactList(contactData));
           navigate("/contactform");
         } else {
-          setOpen(true)
+          setOpen(true);
           setAuthenticationMessage("invalid user email address or password");
-    
         }
       } else {
-        setOpen(true)
+        setOpen(true);
         setAuthenticationMessage("invalid user email address or password");
-      
       }
     }
   };

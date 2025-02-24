@@ -7,24 +7,23 @@ import {
 
 const contactSlice = createSlice({
   name: "contactList",
-  initialState: getLocalStorageData(),
+  initialState: getLocalStorageData() || [],
   reducers: {
     addContact(state, action) {
       let sessiondata = getSessionStorageData("email");
       const updatedState = state.map((element) => {
         if (element.email === sessiondata) {
-          console.log(sessiondata)
-          console.log(element.email)
           return {
             ...element,
-            contact: [...element.contact, action.payload], 
+            contact: [...element.contact, action.payload],
           };
+        } else {
+          console.log("user not found");
         }
         return element;
       });
-    
-      setLocalStorageData(updatedState); 
-      return updatedState; 
+      setLocalStorageData(updatedState);
+      return updatedState;
     },
     updateContact(state, action) {
       const contactData = state.map((element) => {
@@ -58,11 +57,11 @@ const contactSlice = createSlice({
     },
     updateContactList: (state, action) => {
       setLocalStorageData(action.payload);
-      return action.payload; 
+      return action.payload;
     },
   },
 });
 
 export default contactSlice;
-export const { addContact, updateContact, deleteContact,updateContactList } =
+export const { addContact, updateContact, deleteContact, updateContactList } =
   contactSlice.actions;

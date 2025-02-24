@@ -10,7 +10,6 @@ export default function SnackDemo({ open, set, message }) {
     }
     set(false);
   };
-
   const action = (
     <React.Fragment>
       <IconButton

@@ -5,6 +5,6 @@ export const PrivateRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/" />;
 };
 export const ProtectedRoute = ({ children }) => {
-  const isAuthenticated = sessionStorage.getItem("isLogged");
+  const isAuthenticated = sessionStorage.getItem("isLoggedIn");
   return isAuthenticated ? <Navigate to="/contactform" /> : children;
 };
