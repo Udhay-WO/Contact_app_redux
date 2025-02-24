@@ -16,7 +16,7 @@ import {
 } from "./LocalStorageOperation";
 import { useSearchParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
-export default function Popup() {
+export default function Home() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
   const [message, setMessage] = useState(sessionStorage.getItem("message"));

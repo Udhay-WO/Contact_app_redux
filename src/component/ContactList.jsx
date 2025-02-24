@@ -54,7 +54,7 @@ export const ContactList = () => {
                       >
                         {i.image ? (
                           <img
-                            src={`data:image/png;base64,${i.image}`}
+                            src={i.image}
                             alt={i.name}
                             width="100px"
                             height="100px"

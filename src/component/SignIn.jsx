@@ -11,9 +11,9 @@ import Stack from "@mui/material/Stack";
 import CryptoJS from "crypto-js";
 import MuiCard from "@mui/material/Card";
 import SnackDemo from "./SnackDemo";
+import { useState } from "react";
 import { styled } from "@mui/material/styles";
 import { NavLink } from "react-router-dom";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { updateContactList } from "../Store/Slice/ContactSlice";
@@ -22,6 +22,9 @@ import {
   setSessionStorageIsLoggedIn,
   setSessionStorageEmail,
 } from "./LocalStorageOperation";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -65,73 +68,53 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
   },
 }));
 
+const schema = Yup.object().shape({
+  email: Yup.string()
+    .email("Please enter a valid email address")
+    .required("Please enter an email address"),
+  password: Yup.string()
+    .min(6, "Password must be at least 6 characters long")
+    .required("Please enter your password"),
+});
+
 export default function SignIn() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate();
   const [open, setOpen] = useState(true);
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
-  const [passwordError, setPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
   const [authenticationMessage, setAuthenticationMessage] = React.useState(
     sessionStorage.getItem("message")
   );
-  const handleEmail = (e) => {
-    setEmail(e.target.value);
-  };
-  const handlePassword = (e) => {
-    setPassword(e.target.value);
-  };
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const validateInputs = async (e) => {
-    e.preventDefault();
-    let isValid = true;
-    if (!email) {
-      setEmailError(true);
-      setEmailErrorMessage("Please enter email address.");
-      isValid = false;
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      setEmailError(true);
-      setEmailErrorMessage("Please enter valid email address.");
-      isValid = false;
-    } else {
-      setEmailError(false);
-      setEmailErrorMessage("");
-    }
-    if (!password || password.length < 6) {
-      setPasswordError(true);
-      setPasswordErrorMessage("Password must be at least 6 characters long.");
-      isValid = false;
-    } else {
-      setPasswordError(false);
-      setPasswordErrorMessage("");
-    }
-    if (isValid) {
-      const data = getLocalStorageData();
-      const validEmail = data?.find((item) => item.email === email);
-      if (validEmail) {
-        const secretKey = "my-secret-key";
-        const bytes = CryptoJS.AES.decrypt(validEmail.password, secretKey);
-        const decryptedPassword = bytes.toString(CryptoJS.enc.Utf8);
-        if (decryptedPassword === password) {
-          setSessionStorageEmail(email);
-          setSessionStorageIsLoggedIn();
-          sessionStorage.setItem("message", "Login successful");
-          const contactData = getLocalStorageData();
-          dispatch(updateContactList(contactData));
-          navigate("/contactform");
-        } else {
-          setOpen(true);
-          setAuthenticationMessage("invalid user email address or password");
-        }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
+  const onSubmit = (data) => {
+    const { email, password } = data;
+    const storedData = getLocalStorageData();
+    const validEmail = storedData?.find((item) => item.email === email);
+    if (validEmail) {
+      const secretKey = "my-secret-key";
+      const bytes = CryptoJS.AES.decrypt(validEmail.password, secretKey);
+      const decryptedPassword = bytes.toString(CryptoJS.enc.Utf8);
+      if (decryptedPassword === password) {
+        setSessionStorageEmail(email);
+        setSessionStorageIsLoggedIn();
+        sessionStorage.setItem("message", "Login successful");
+        const contactData = getLocalStorageData();
+        dispatch(updateContactList(contactData));
+        navigate("/contactform");
       } else {
         setOpen(true);
-        setAuthenticationMessage("invalid user email address or password");
+        setAuthenticationMessage("Invalid user email address or password");
       }
+    } else {
+      setOpen(true);
+      setAuthenticationMessage("Invalid user email address or password");
     }
   };
-
   return (
     <>
       <CssBaseline enableColorScheme />
@@ -147,6 +130,7 @@ export default function SignIn() {
           <Box
             component="form"
             noValidate
+            onSubmit={handleSubmit(onSubmit)}
             sx={{
               display: "flex",
               flexDirection: "column",
@@ -157,8 +141,8 @@ export default function SignIn() {
             <FormControl>
               <FormLabel htmlFor="email">Email</FormLabel>
               <TextField
-                error={emailError}
-                helperText={emailErrorMessage}
+                error={!!errors.email}
+                helperText={errors.email?.message}
                 id="email"
                 type="email"
                 name="email"
@@ -167,17 +151,16 @@ export default function SignIn() {
                 autoFocus
                 required
                 fullWidth
-                value={email}
-                onChange={handleEmail}
+                {...register("email")}
                 variant="outlined"
-                color={emailError ? "error" : "primary"}
+                color={errors.email ? "error" : "primary"}
               />
             </FormControl>
             <FormControl>
               <FormLabel htmlFor="password">Password</FormLabel>
               <TextField
-                error={passwordError}
-                helperText={passwordErrorMessage}
+                error={!!errors.password}
+                helperText={errors.password?.message}
                 name="password"
                 placeholder="••••••"
                 type="password"
@@ -186,18 +169,12 @@ export default function SignIn() {
                 autoFocus
                 required
                 fullWidth
-                value={password}
-                onChange={handlePassword}
+                {...register("password")}
                 variant="outlined"
-                color={passwordError ? "error" : "primary"}
+                color={errors.password ? "error" : "primary"}
               />
             </FormControl>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              onClick={validateInputs}
-            >
+            <Button type="submit" fullWidth variant="contained">
               Sign in
             </Button>
           </Box>
